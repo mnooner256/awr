@@ -21,6 +21,15 @@ private:
 	int priority;		//smaller means better - super high is a wall or elevator
 	long int rfid;		//holds RFID data
 public:
+	//default constructor
+	Node()
+	{
+		xPos = -1;
+		yPos = -1;
+		distance = -1;
+		priority = -1;
+		rfid = -1;
+	}
 	//constructor from UI data
 	Node(int x_p, int y_p, int d, int p, int r)
 	{
