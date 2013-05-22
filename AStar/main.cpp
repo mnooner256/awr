@@ -4,6 +4,7 @@ Program that brings it all together
 Created by: Francisco Ruiz
 ***************************************************************/
 #include <fstream>
+#include "AStar.h"
 #include "Node.h"
 
 using namespace std;
@@ -12,6 +13,7 @@ void main()
 {
 	fstream f, g;
 	int x_size, y_size, map_area, x, y, rfid;
+	Node start, end;
 	Node* map;
 	Node* curr;
 
@@ -43,7 +45,25 @@ void main()
 			curr = map[i+1];
 		}
 	}
-}
+	f.close();
+
+	g.open("C:/Users/Desktop/Start.txt", ios::in);
+	//infinite loop - will research
+	while(true)
+	{
+		//read start coordinates and put into starting node
+		g >> x >> y;
+		start.xPos = x;
+		start.yPos = y;
+		//read finish coordinates and put in end node
+		g >> x >> y;
+		end.xPos = x;
+		end.yPos = y;
+
+
+
+
+	}
 
 
 
