@@ -5,14 +5,16 @@ int ledPin =  13;    // LED connected to digital pin 13
 // The setup() method runs once, when the sketch starts
 void setup()
 {
-  Serial.begin(115200);
+  pinMode(ledPin, OUTPUT);
 }
 
 // the loop() method runs over and over again,
 // as long as the Arduino has power
 void loop()
 {
-  Serial.println("Hello, World!");
+  digitalWrite(ledPin, HIGH);
+  delay(1000);
+  digitalWrite(ledPin, LOW);
   delay(1000);
 }
 
