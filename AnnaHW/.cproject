@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?fileVersion 4.0.0?><cproject storage_type_id="org.eclipse.cdt.core.XmlProjectDescriptionStorage">
+<?fileVersion 4.0.0?>
+
+<cproject storage_type_id="org.eclipse.cdt.core.XmlProjectDescriptionStorage">
 	<storageModule moduleId="org.eclipse.cdt.core.settings">
 		<cconfiguration id="de.innot.avreclipse.configuration.app.release.1827269123">
 			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="de.innot.avreclipse.configuration.app.release.1827269123" moduleId="org.eclipse.cdt.core.settings" name="Release">
@@ -31,9 +33,9 @@
 								<option id="de.innot.avreclipse.compiler.option.debug.level.1861564015" name="Generate Debugging Info" superClass="de.innot.avreclipse.compiler.option.debug.level" value="de.innot.avreclipse.compiler.option.debug.level.none" valueType="enumerated"/>
 								<option id="de.innot.avreclipse.compiler.option.optimize.571360528" name="Optimization Level" superClass="de.innot.avreclipse.compiler.option.optimize" value="de.innot.avreclipse.compiler.optimize.size" valueType="enumerated"/>
 								<option id="de.innot.avreclipse.compiler.option.incpath.668577314" name="Include Paths (-I)" superClass="de.innot.avreclipse.compiler.option.incpath" valueType="includePath">
-									<listOptionValue builtIn="false" value="&quot;C:\Users\ad\eclipse\arduino-1.0.5\hardware\arduino\cores\arduino&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;C:\Users\ad\eclipse\arduino-1.0.5\libraries&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;C:\Users\ad\eclipse\arduino-1.0.5\hardware\arduino\variants\standard&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;C:\Documents and Settings\Yu Sun\Desktop\eclipse\arduino-1.0.5\hardware\arduino\cores\arduino&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;C:\Documents and Settings\Yu Sun\Desktop\eclipse\arduino-1.0.5\libraries&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;C:\Documents and Settings\Yu Sun\Desktop\eclipse\arduino-1.0.5\hardware\arduino\variants\standard&quot;"/>
 								</option>
 								<option id="de.innot.avreclipse.compiler.option.optimize.packstruct.1505445272" name="Pack structs (-fpack-struct)" superClass="de.innot.avreclipse.compiler.option.optimize.packstruct" value="false" valueType="boolean"/>
 								<option id="de.innot.avreclipse.compiler.option.optimize.shortenums.647836257" name="Short enums (-fshort-enums)" superClass="de.innot.avreclipse.compiler.option.optimize.shortenums" value="false" valueType="boolean"/>
@@ -45,9 +47,9 @@
 								<option id="de.innot.avreclipse.cppcompiler.option.debug.level.375008959" name="Generate Debugging Info" superClass="de.innot.avreclipse.cppcompiler.option.debug.level" value="de.innot.avreclipse.cppcompiler.option.debug.level.none" valueType="enumerated"/>
 								<option id="de.innot.avreclipse.cppcompiler.option.optimize.755630924" name="Optimization Level" superClass="de.innot.avreclipse.cppcompiler.option.optimize" value="de.innot.avreclipse.cppcompiler.optimize.size" valueType="enumerated"/>
 								<option id="de.innot.avreclipse.cppcompiler.option.incpath.1002857551" name="Include Paths (-I)" superClass="de.innot.avreclipse.cppcompiler.option.incpath" valueType="includePath">
-									<listOptionValue builtIn="false" value="&quot;C:\Users\ad\eclipse\arduino-1.0.5\hardware\arduino\cores\arduino&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;C:\Users\ad\eclipse\arduino-1.0.5\libraries&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;C:\Users\ad\eclipse\arduino-1.0.5\hardware\arduino\variants\standard&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;C:\Documents and Settings\Yu Sun\Desktop\eclipse\arduino-1.0.5\hardware\arduino\cores\arduino&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;C:\Documents and Settings\Yu Sun\Desktop\eclipse\arduino-1.0.5\libraries&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;C:\Documents and Settings\Yu Sun\Desktop\eclipse\arduino-1.0.5\hardware\arduino\variants\standard&quot;"/>
 								</option>
 								<option id="de.innot.avreclipse.cppcompiler.option.optimize.packstruct.6736599" name="Pack structs (-fpack-struct)" superClass="de.innot.avreclipse.cppcompiler.option.optimize.packstruct" value="false" valueType="boolean"/>
 								<option id="de.innot.avreclipse.cppcompiler.option.optimize.shortenums.44639275" name="Short enums (-fshort-enums)" superClass="de.innot.avreclipse.cppcompiler.option.optimize.shortenums" value="false" valueType="boolean"/>
