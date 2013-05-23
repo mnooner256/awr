@@ -5,12 +5,14 @@ int ledPin =  13;
 
 void setup()
 {
-  Serial.begin(115200);
+  pinMode(ledPin, OUTPUT);
 }
 
 void loop()
 {
-  Serial.println("Hello, World!");
+  digitalWrite(ledPin, HIGH);
+  delay(1000);
+  digitalWrite(ledPin, LOW);
   delay(1000);
 }
 
