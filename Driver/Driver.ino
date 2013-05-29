@@ -8,20 +8,22 @@ Description: Controls and directs the Rover with received instructions (a single
  - Check out encoders for turning
  - Check out onboard compass for correction
  - Integrate with RFID for navigation output
- - Move RFID input retrieval to interrupt function call
 */
 
 #include <SoftwareSerial.h>
 
 SoftwareSerial id20(3,4); // virtual serial port(RX,TX)
 char i;
-int flag =0;
+int flag =0;              // flag variable for RFID interrupt
 
 int E1 = 6; //M1 Speed Control
 int E2 = 5; //M2 Speed Control
 int M1 = 8; //M1 Direction Control
 int M2 = 7; //M2 Direction Control
 
+void RFID_ISR(){
+  flag =1;
+}
 void setup()
 {
    int i;
@@ -31,9 +33,9 @@ void setup()
    id20.begin(9600);
    attachInterrupt(0, RFID_ISR, HIGH);
 }
-
 void loop()
 {
+  //for debugging purposes
   Serial.println("Test");
  
   if(flag == 1) RFID();
@@ -66,32 +68,6 @@ void loop()
 //     stop();
 //     break;
 //   } 
-}
-
-void RFID() {
-  char tagString[13] = {NULL};  
-    
-  if(id20.available() ) {      
-    for( int index = 0; index < 12; index++ ) {  //once serial input is detected, loop until all 12 digits are collected
-      i = id20.read();                           // receive character from ID20
-      int a=i;                                   // retrieve character's ascii value
-      if(a>=48 && a<=70){                        //check whether it is a valid hex value
-        tagString[index] = i;
-      }
-      else index--;                              //if it is not a hex digit, then do not count towards the 12 digits in ID
-    }
-  }
-    
-  //for debugging purposes
-  if(tagString != NULL) {
-    Serial.println(tagString);                  // send ID# to serial monitor
-  }
-  delay(250);
-  flag =0;
-}
-
-void RFID_ISR(){
-  flag =1;
 }
 
 void stop(void) //Stop
@@ -140,13 +116,4 @@ void dright (char a,char b)
  digitalWrite(M1,LOW);
  analogWrite (E2,b);
  digitalWrite(M2,HIGH);
-}
-int main(void)
-{
-  init();
-  setup();
-
-  while(true) {
-    loop();
-  }
 }
