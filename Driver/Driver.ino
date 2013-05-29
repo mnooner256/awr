@@ -8,51 +8,92 @@ Description: Controls and directs the Rover with received instructions (a single
  - Check out encoders for turning
  - Check out onboard compass for correction
  - Integrate with RFID for navigation output
+ - Move RFID input retrieval to interrupt function call
 */
+
+#include <SoftwareSerial.h>
+
+SoftwareSerial id20(3,4); // virtual serial port(RX,TX)
+char i;
+int flag =0;
 
 int E1 = 6; //M1 Speed Control
 int E2 = 5; //M2 Speed Control
 int M1 = 8; //M1 Direction Control
 int M2 = 7; //M2 Direction Control
 
-void setup(void)
+void setup()
 {
    int i;
-   for(i=5;i<=8;i++)
-   pinMode(i, OUTPUT);
+   for(i=5; i<=8; i++)
+     pinMode(i, OUTPUT);
    Serial.begin(9600);
+   id20.begin(9600);
+   attachInterrupt(0, RFID_ISR, HIGH);
 }
-void loop(void)
+
+void loop()
 {
-   while (Serial.available() < 1) {} // Wait until a character is received
-   char val = Serial.read();
+  Serial.println("Test");
+ 
+  if(flag == 1) RFID();
+  
+   //while (Serial.available() < 1) {} // Wait until a character is received
+   char val = 'a'; //Serial.read();
    int leftspeed = 255; //255 is maximum speed 
    int rightspeed = 255;
-   switch(val) // Perform an action depending on the command
-   {
-     case 'f'://Move Forward
-       forward (leftspeed,rightspeed);
-     break;
-     case 'l'://Turn Left
-       left (leftspeed,rightspeed);
-     break;
-     case 'r'://Turn Right
-       right (leftspeed,rightspeed);
-     break;
-     case 'k'://Move Diagonally Left
-       dleft (leftspeed,rightspeed);
-     break;
-     case 't'://Move Diagonally Right
-       dright (leftspeed,rightspeed);
-     break;
-     case 'b'://Move Backwards
-       reverse (leftspeed,rightspeed);
-     break;
-     default:
-     stop();
-     break;
-   } 
+//   switch(val) // Perform an action depending on the command
+//   {
+//     case 'f'://Move Forward
+//       forward (leftspeed,rightspeed);
+//     break;
+//     case 'l'://Turn Left
+//       left (leftspeed,rightspeed);
+//     break;
+//     case 'r'://Turn Right
+//       right (leftspeed,rightspeed);
+//     break;
+//     case 'k'://Move Diagonally Left
+//       dleft (leftspeed,rightspeed);
+//     break;
+//     case 't'://Move Diagonally Right
+//       dright (leftspeed,rightspeed);
+//     break;
+//     case 'b'://Move Backwards
+//       reverse (leftspeed,rightspeed);
+//     break;
+//     default:
+//     stop();
+//     break;
+//   } 
 }
+
+void RFID() {
+  char tagString[13] = {NULL};  
+    
+  if(id20.available() ) {      
+    for( int index = 0; index < 12; index++ ) {  //once serial input is detected, loop until all 12 digits are collected
+      i = id20.read();                           // receive character from ID20
+      int a=i;                                   // retrieve character's ascii value
+      if(a>=48 && a<=70){                        //check whether it is a valid hex value
+        tagString[index] = i;
+      }
+      else index--;                              //if it is not a hex digit, then do not count towards the 12 digits in ID
+    }
+  }
+    
+  //for debugging purposes
+  if(tagString != NULL) {
+    Serial.println(tagString);                  // send ID# to serial monitor
+  }
+  delay(250);
+  flag =0;
+}
+
+void RFID_ISR(){
+  flag =1;
+}
+
 void stop(void) //Stop
 {
  digitalWrite(E1,LOW);
@@ -99,4 +140,13 @@ void dright (char a,char b)
  digitalWrite(M1,LOW);
  analogWrite (E2,b);
  digitalWrite(M2,HIGH);
+}
+int main(void)
+{
+  init();
+  setup();
+
+  while(true) {
+    loop();
+  }
 }
