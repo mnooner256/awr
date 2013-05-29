@@ -8,16 +8,14 @@ void setup()
 {
    Serial.begin(9600);
    id20.begin(9600);
-   attachInterrupt(0, RFID_ISR, LOW);
+   attachInterrupt(0, RFID_ISR, HIGH);
 }
 
 void loop()
 {
-  if(flag == 0) Serial.println("Test");
+  Serial.println("Test");
  
-  else {
-    Serial.println("Hello World");
-    
+  if(flag == 1) {
     char tagString[13] = {NULL};  
     
     if(id20.available() ) {      
@@ -35,6 +33,7 @@ void loop()
     if(tagString != NULL) {
       Serial.println(tagString);                  // send ID# to serial monitor
     }
+    delay(250);
     flag =0;
   }
 }
