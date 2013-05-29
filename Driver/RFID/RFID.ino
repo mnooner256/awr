@@ -1,7 +1,8 @@
 //Author:       Anna Shafer
-//Description:  Uses virtual serial port for input serial
-//              stream for Arduino and uses USB for serial
-//              output.
+//Description:  Receives and stores a 12 hexadecimal digit RFID tag number.
+//              Note:Uses virtual serial port for RFID input serial stream and uses USB for serial
+//              output to moniter.
+
 #include <Arduino.h>
 #include <SoftwareSerial.h>
 
