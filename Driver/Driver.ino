@@ -72,7 +72,6 @@ void reverse (char a,char b)
  analogWrite (E2,b);
  digitalWrite(M2,HIGH);
 }
-//need to figure out timing system or encoders to determine turning time/radius
 void left (char a,char b)
 {
  analogWrite (E1,a);
