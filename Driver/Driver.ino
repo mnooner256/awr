@@ -4,10 +4,9 @@ Description: Controls and directs the Rover with received instructions (a single
              l=turn left 90 deg, k=turn left 45 deg, b=reverse/backwards*/
              
 /*Current notes:
- - Need to verify movement
- - Check out encoders for turning
- - Check out onboard compass for correction
- - Integrate with RFID for navigation output
+ - Check out encoders for turning?
+ - Check out onboard compass for correction (and turning?)
+ -- Integrate with RFID for navigation output
 */
 
 #include <SoftwareSerial.h>
