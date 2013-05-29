@@ -1,3 +1,7 @@
+//Author:       Anna Shafer
+//Description:  Uses virtual serial port for input serial
+//              stream for Arduino and uses USB for serial
+//              output.
 #include <Arduino.h>
 #include <SoftwareSerial.h>
 
@@ -11,17 +15,22 @@ void setup()
 }
 
 void loop(){
-  char tagString[13] = {0};  //Initialize ID tag string to zero
+  char tagString[13] = {NULL};  
   
-  if(id20.available() ) {
-    for( int index = 0; index < 12; index++) {
-    i = id20.read(); // receive character from ID20
-    tagString[index] = i;
+  if(id20.available() ) {      
+    for( int index = 0; index < 12; index++ ) {  //once serial input is detected, loop until all 12 digits are collected
+      i = id20.read();                           // receive character from ID20
+      int a=i;                                   // retrieve character's ascii value
+      if(a>=48 && a<=70){                        //check whether it is a valid hex value
+        tagString[index] = i;
+      }
+      else index--;                              //if it is not a hex digit, then do not count towards the 12 digits in ID
     }
   }
     
-  if(tagString != 0) {
-    Serial.println(tagString); // send ID# to serial monitor
+  //for debugging purposes
+  if(tagString != NULL) {
+    Serial.println(tagString);                  // send ID# to serial monitor
   }
   
 }
