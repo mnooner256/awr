@@ -30,7 +30,7 @@ void setup()
    attachInterrupt(0, RFID_ISR, HIGH);
      
    Serial.begin(9600);
-   id20.begin(9600);
+   id20.begin(9600); //
 }
 void loop()
 {
