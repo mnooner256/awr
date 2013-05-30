@@ -1,0 +1,8 @@
+15:10:20 **** Incremental Build of configuration Debug for project Test ****
+Info: Internal Builder is used for build
+cl /c /EHs /MD /Zi "/IC:\\Program Files\\Windows Kits\\8.0\\Include\\um" "/IC:\\Program Files\\Windows Kits\\8.0\\Include\\um\\gl" "/IC:\\Program Files\\Windows Kits\\8.0\\Include\\shared" "/IC:\\Program Files\\Windows Kits\\8.0\\Include\\winrt" /nologo /Fotest.obj "..\\test.cpp" 
+test.cpp
+link /debug /nologo "/libpath:C:\\Program Files\\Windows Kits\\8.0\\Lib\\win8\\um\\x86" /OUT:Test.exe test.obj kernel32.lib user32.lib 
+
+15:10:24 Build Finished (took 3s.731ms)
+

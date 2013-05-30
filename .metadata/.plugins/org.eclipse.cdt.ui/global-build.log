@@ -1,0 +1,49 @@
+Info: Nothing to build for Test
+Info: Nothing to build for Test
+Info: Nothing to build for Test
+14:41:18 **** Incremental Build of configuration Debug for project Test ****
+Info: Internal Builder is used for build
+cl /c /EHs /MD /Zi "/IC:\\Program Files\\Windows Kits\\8.0\\Include\\um" "/IC:\\Program Files\\Windows Kits\\8.0\\Include\\um\\gl" "/IC:\\Program Files\\Windows Kits\\8.0\\Include\\shared" "/IC:\\Program Files\\Windows Kits\\8.0\\Include\\winrt" /nologo /Fotest.obj "..\\test.cpp" 
+test.cpp
+link /debug /nologo "/libpath:C:\\Program Files\\Windows Kits\\8.0\\Lib\\win8\\um\\x86" /OUT:Test.exe test.obj kernel32.lib user32.lib 
+Info: Nothing to build for Test
+14:43:29 **** Incremental Build of configuration Debug for project Test ****
+Info: Internal Builder is used for build
+cl /c /EHs /MD /Zi "/IC:\\Program Files\\Windows Kits\\8.0\\Include\\um" "/IC:\\Program Files\\Windows Kits\\8.0\\Include\\um\\gl" "/IC:\\Program Files\\Windows Kits\\8.0\\Include\\shared" "/IC:\\Program Files\\Windows Kits\\8.0\\Include\\winrt" /nologo /Fotest.obj "..\\test.cpp" 
+test.cpp
+link /debug /nologo "/libpath:C:\\Program Files\\Windows Kits\\8.0\\Lib\\win8\\um\\x86" /OUT:Test.exe test.obj kernel32.lib user32.lib 
+14:43:56 **** Incremental Build of configuration Debug for project Test ****
+Info: Internal Builder is used for build
+cl /c /EHs /MD /Zi "/IC:\\Program Files\\Windows Kits\\8.0\\Include\\um" "/IC:\\Program Files\\Windows Kits\\8.0\\Include\\um\\gl" "/IC:\\Program Files\\Windows Kits\\8.0\\Include\\shared" "/IC:\\Program Files\\Windows Kits\\8.0\\Include\\winrt" /nologo /Fotest.obj "..\\test.cpp" 
+test.cpp
+link /debug /nologo "/libpath:C:\\Program Files\\Windows Kits\\8.0\\Lib\\win8\\um\\x86" /OUT:Test.exe test.obj kernel32.lib user32.lib 
+14:44:19 **** Incremental Build of configuration Debug for project Test ****
+Info: Internal Builder is used for build
+cl /c /EHs /MD /Zi "/IC:\\Program Files\\Windows Kits\\8.0\\Include\\um" "/IC:\\Program Files\\Windows Kits\\8.0\\Include\\um\\gl" "/IC:\\Program Files\\Windows Kits\\8.0\\Include\\shared" "/IC:\\Program Files\\Windows Kits\\8.0\\Include\\winrt" /nologo /Fotest.obj "..\\test.cpp" 
+test.cpp
+link /debug /nologo "/libpath:C:\\Program Files\\Windows Kits\\8.0\\Lib\\win8\\um\\x86" /OUT:Test.exe test.obj kernel32.lib user32.lib 
+14:46:16 **** Incremental Build of configuration Debug for project Test ****
+Info: Internal Builder is used for build
+cl /c /EHs /MD /Zi "/IC:\\Program Files\\Windows Kits\\8.0\\Include\\um" "/IC:\\Program Files\\Windows Kits\\8.0\\Include\\um\\gl" "/IC:\\Program Files\\Windows Kits\\8.0\\Include\\shared" "/IC:\\Program Files\\Windows Kits\\8.0\\Include\\winrt" /nologo /Fotest.obj "..\\test.cpp" 
+test.cpp
+link /debug /nologo "/libpath:C:\\Program Files\\Windows Kits\\8.0\\Lib\\win8\\um\\x86" /OUT:Test.exe test.obj kernel32.lib user32.lib 
+14:47:53 **** Incremental Build of configuration Debug for project Test ****
+Info: Internal Builder is used for build
+cl /c /EHs /MD /Zi "/IC:\\Program Files\\Windows Kits\\8.0\\Include\\um" "/IC:\\Program Files\\Windows Kits\\8.0\\Include\\um\\gl" "/IC:\\Program Files\\Windows Kits\\8.0\\Include\\shared" "/IC:\\Program Files\\Windows Kits\\8.0\\Include\\winrt" /nologo /Fotest.obj "..\\test.cpp" 
+test.cpp
+link /debug /nologo "/libpath:C:\\Program Files\\Windows Kits\\8.0\\Lib\\win8\\um\\x86" /OUT:Test.exe test.obj kernel32.lib user32.lib 
+14:54:15 **** Incremental Build of configuration Debug for project Test ****
+Info: Internal Builder is used for build
+cl /c /EHs /MD /Zi "/IC:\\Program Files\\Windows Kits\\8.0\\Include\\um" "/IC:\\Program Files\\Windows Kits\\8.0\\Include\\um\\gl" "/IC:\\Program Files\\Windows Kits\\8.0\\Include\\shared" "/IC:\\Program Files\\Windows Kits\\8.0\\Include\\winrt" /nologo /Fotest.obj "..\\test.cpp" 
+test.cpp
+link /debug /nologo "/libpath:C:\\Program Files\\Windows Kits\\8.0\\Lib\\win8\\um\\x86" /OUT:Test.exe test.obj kernel32.lib user32.lib 
+15:01:39 **** Incremental Build of configuration Debug for project Test ****
+Info: Internal Builder is used for build
+cl /c /EHs /MD /Zi "/IC:\\Program Files\\Windows Kits\\8.0\\Include\\um" "/IC:\\Program Files\\Windows Kits\\8.0\\Include\\um\\gl" "/IC:\\Program Files\\Windows Kits\\8.0\\Include\\shared" "/IC:\\Program Files\\Windows Kits\\8.0\\Include\\winrt" /nologo /Fotest.obj "..\\test.cpp" 
+test.cpp
+link /debug /nologo "/libpath:C:\\Program Files\\Windows Kits\\8.0\\Lib\\win8\\um\\x86" /OUT:Test.exe test.obj kernel32.lib user32.lib 
+15:10:20 **** Incremental Build of configuration Debug for project Test ****
+Info: Internal Builder is used for build
+cl /c /EHs /MD /Zi "/IC:\\Program Files\\Windows Kits\\8.0\\Include\\um" "/IC:\\Program Files\\Windows Kits\\8.0\\Include\\um\\gl" "/IC:\\Program Files\\Windows Kits\\8.0\\Include\\shared" "/IC:\\Program Files\\Windows Kits\\8.0\\Include\\winrt" /nologo /Fotest.obj "..\\test.cpp" 
+test.cpp
+link /debug /nologo "/libpath:C:\\Program Files\\Windows Kits\\8.0\\Lib\\win8\\um\\x86" /OUT:Test.exe test.obj kernel32.lib user32.lib 
