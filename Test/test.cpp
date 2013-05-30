@@ -9,12 +9,12 @@
 #include <iostream>
 
 int main() {
-	HANDLE ard;
+	HANDLE serialArd;
 	//opening an overlapping I/O port
-	ard = CreateFile("COM4",GENERIC_READ | GENERIC_WRITE,
+	serialArd = CreateFile("COM4",GENERIC_READ | GENERIC_WRITE,
 			0,0,OPEN_EXISTING,FILE_FLAG_OVERLAPPED,0);
 
-	if(ard == INVALID_HANDLE_VALUE) {
+	if(serialArd == INVALID_HANDLE_VALUE) {
 		std::cout << "Could not open new port.";
 		return 1;
 	}
@@ -23,6 +23,8 @@ int main() {
 	DWORD dwRead;
 	BOOL fWaitingOnRead = FALSE;
 	OVERLAPPED osReader = {0};
+	DCB ard;
+
 	const int MAX_BUF_SIZE = 256;
 	char buf[MAX_BUF_SIZE];
 
@@ -35,26 +37,40 @@ int main() {
 		return 1;
 	}
 
+   FillMemory(&ard, sizeof(ard), 0);
+   ard.DCBlength = sizeof(ard);
+   if (!BuildCommDCB("9600,n,8,1", &ard)) {
+	  // Couldn't build the DCB. Usually a problem
+	  // with the communications specification string.
+	   std::cout << "Could not prepare serial communication on port.";
+	   return 1;
+   }
+   else {
+	  // DCB is ready for use.
+	   std::cout<< "Ready for serial communication on port.";
 
-	if (!fWaitingOnRead) {
-		// Issue read operation.
-		if (!ReadFile(ard, buf, MAX_BUF_SIZE, &dwRead, &osReader)) {
-			  if (GetLastError() != ERROR_IO_PENDING) {    // read not delayed?
-				 // Error in communications; report it.
-				  std::cout << "Could not read from port.";
-				  return 1;
-			  }
-			  else
-				 fWaitingOnRead = TRUE;
-		 }
-		 else {
-		  // read completed immediately
-			 std::cout << "Successfully read from port.";
-			 for(int i=0; i<MAX_BUF_SIZE; i++) {
-				 std::cout << buf[i];
+		if (!fWaitingOnRead) {
+			// Issue read operation.
+			if (!ReadFile(serialArd, buf, MAX_BUF_SIZE, &dwRead, &osReader)) {
+				  if (GetLastError() != ERROR_IO_PENDING) {    // read not delayed?
+					 // Error in communications; report it.
+					  std::cout << "Could not read from port.";
+					  return 1;
+				  }
+				  else
+					 fWaitingOnRead = TRUE;
 			 }
+			 else {
+			  // read completed immediately
+				 std::cout << "Successfully read from port.";
+				 for(int i=0; i<MAX_BUF_SIZE; i++) {
+					 std::cout << buf[i];
+				 }
+			}
 		}
-	}
+   }
+
+   CloseHandle(serialArd);
 	return 0;
 }
 
