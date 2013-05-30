@@ -28,19 +28,19 @@ int main()
 	}
 	else {
 
-	    FillMemory(&dcb, sizeof(dcb), 0);
 	    dcb.DCBlength = sizeof(dcb);
-	    if (!BuildCommDCB("9600,n,8,1", &dcb)) {
-		  // Couldn't build the DCB. Usually a problem
-		  // with the communications specification string.
-	    	std::cout << "Not ready for serial communication on port.\n";
-	    	return 1;
-	    }
-	    else {
-		  // DCB is ready for use.
-	    	std::cout << "Ready for serial communication on port.\n";
+	    if (!::GetCommState(serialArd, &dcb)) {
+	    	return E_FAIL;
 	    }
 
+	    dcb.BaudRate    = 9600;
+	    dcb.ByteSize    = 8;
+	    dcb.Parity        = NOPARITY;
+	    dcb.StopBits    = ONESTOPBIT;
+
+	    if (!::SetCommState (serialArd,&dcb)) {
+	        return E_FAIL;
+	    }
 		// Create the overlapped event. Must be closed before exiting
 		// to avoid a handle leak.
 		osReader.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
