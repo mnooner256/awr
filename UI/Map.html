@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+
+<html>
+	<head>
+<script src="jquery.js"></script>
+<script src="global.js"></script>
+<script src="jscr.js"></script>
+	</head>
+<body>
+
+<style type="text/css">
+    canvas { border: 1px solid black; }
+</style>
+<form>
+Dimension (row x column): <input type="text" name="rows" id="rows" value="5"/> X <input type="text" name="colmun" id="column" value="5"/>
+</form>
+<input type="button" value="Generate" onclick="generate()"/>
+<br>
+<canvas id="drawSpace" width="600" height="600"></canvas>
+<br>
+<input type="button" value="Lock in" onclick="lock()"/>
+<input type="button" value="Set End" onclick="setEnd()"/>
+<input type="button" value="Save" onclick="save()" />
+<br>
+<input type="button" value="Clear" onclick="reset()" />
+</body>
+</html>
