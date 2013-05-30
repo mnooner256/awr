@@ -23,24 +23,26 @@ int main()
 			0,0,OPEN_EXISTING,FILE_FLAG_OVERLAPPED,0);
 
 	if(serialArd == INVALID_HANDLE_VALUE) {
-		std::cout << "Could not open new port."<< std::endl;
+		std::cout << "Could not open new port.\n";
 		return 1;
 	}
 	else {
 
 	    dcb.DCBlength = sizeof(dcb);
 	    if (!::GetCommState(serialArd, &dcb)) {
-	    	return E_FAIL;
+	    	std::cout << "Could not get communication state.\n";
+	    	return 1;
 	    }
-
 	    dcb.BaudRate    = 9600;
 	    dcb.ByteSize    = 8;
 	    dcb.Parity        = NOPARITY;
 	    dcb.StopBits    = ONESTOPBIT;
 
 	    if (!::SetCommState (serialArd,&dcb)) {
-	        return E_FAIL;
+	    	std::cout << "Could not set communication state.\n";
+	    	return 1;
 	    }
+
 		// Create the overlapped event. Must be closed before exiting
 		// to avoid a handle leak.
 		osReader.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
@@ -56,7 +58,7 @@ int main()
 			if (!ReadFile(serialArd, buf, MAX_BUF_SIZE-1, &dwRead, &osReader)) {
 				  if (GetLastError() != ERROR_IO_PENDING) {    // read not delayed?
 					 // Error in communications; report it.
-					  std::cout << "Could not read from port."<< std::endl;
+					  std::cout << "Could not read from port.\n";
 					  CloseHandle(serialArd);
 					  return 1;
 				  }
@@ -65,7 +67,7 @@ int main()
 			 }
 			 else {
 			  // read completed immediately
-				 std::cout << "Successfully read from port."<< std::endl;
+				 std::cout << "Successfully read from port.\n";
 				 for(int i=0; i<MAX_BUF_SIZE; i++) {
 					 std::cout << buf[i];
 				 }
