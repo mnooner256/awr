@@ -42,7 +42,7 @@ int main() {
 	   if (!BuildCommDCB("9600,n,8,1", &ard)) {
 		  // Couldn't build the DCB. Usually a problem
 		  // with the communications specification string.
-		   std::cout << "Could not prepare serial communication on port.";
+		   //std::cout << "Could not prepare serial communication on port.";
 		   return FALSE;
 	   }
 	   else {
