@@ -39,5 +39,5 @@ else{
   mysqli_close($con);
 }
 
-fclose($fh);
+fclose($fh); 
 ?>
