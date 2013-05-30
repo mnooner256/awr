@@ -51,10 +51,16 @@ void main()
 	//infinite loop - will research
 	while(true)
 	{
-		//read start coordinates and put into starting node
-		g >> x >> y;
-		start.xPos = x;
-		start.yPos = y;
+		//read RFID tag into rfid variable for start position
+		curr = map[0];
+		//will find current position based on rfid tag and fill start Node
+		while (curr->rfid != rfid)
+		{
+			curr++;
+		}
+
+		start.xPos = curr->xPos;
+		start.yPos = curr->yPos;
 		//read finish coordinates and put in end node
 		g >> x >> y;
 		end.xPos = x;
