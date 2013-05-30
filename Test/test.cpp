@@ -27,7 +27,6 @@ int main()
 		return 1;
 	}
 	else {
-
 	    dcb.DCBlength = sizeof(dcb);
 	    if (!::GetCommState(serialArd, &dcb)) {
 	    	std::cout << "Could not get communication state.\n";
@@ -35,7 +34,7 @@ int main()
 	    }
 	    dcb.BaudRate    = 9600;
 	    dcb.ByteSize    = 8;
-	    dcb.Parity        = NOPARITY;
+	    dcb.Parity      = NOPARITY;
 	    dcb.StopBits    = ONESTOPBIT;
 
 	    if (!::SetCommState (serialArd,&dcb)) {
