@@ -4,14 +4,13 @@
 //              output to moniter.
 
 void RFID() {
-  String tagString = NULL;  
+  char tagString[12];  
     
   if(id20.available() ) {      
     for( int index = 0; index < 12; index++ ) {  //once serial input is detected, loop until all 12 digits are collected
       i = id20.read();                           // receive character from ID20
-      int a=i;                                   // retrieve character's ascii value
-      if(a>=48 && a<=70){                        //check whether it is a valid hex value
-        tagString += i;
+      if((int)i>=48 && (int)i<=70){                        //check whether it is a valid hex value
+        tagString[index] = i;
       }
       else index--;                              //if it is not a hex digit, then do not count towards the 12 digits in ID
     }
