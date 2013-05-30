@@ -42,6 +42,7 @@ int main()
 	    	return 1;
 	    }
 
+
 		// Create the overlapped event. Must be closed before exiting
 		// to avoid a handle leak.
 		osReader.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
