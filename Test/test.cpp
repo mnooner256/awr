@@ -8,25 +8,39 @@
 #include <Windows.h>
 #include <iostream>
 
-int main() {
+int main()
+{
 	HANDLE serialArd;
+	DWORD dwRead;
+	BOOL fWaitingOnRead = FALSE;
+	OVERLAPPED osReader = {0};
+	const int MAX_BUF_SIZE = 256;
+	char buf[MAX_BUF_SIZE];
+	DCB dcb = {0};
+
 	//opening an overlapping I/O port
 	serialArd = CreateFile("COM4",GENERIC_READ | GENERIC_WRITE,
 			0,0,OPEN_EXISTING,FILE_FLAG_OVERLAPPED,0);
 
 	if(serialArd == INVALID_HANDLE_VALUE) {
-		std::cout << "Could not open new port.";
+		std::cout << "Could not open new port.\n";
 		return 1;
 	}
 	else {
+	    dcb.DCBlength = sizeof(dcb);
+	    if (!::GetCommState(serialArd, &dcb)) {
+	    	std::cout << "Could not get communication state.\n";
+	    	return 1;
+	    }
+	    dcb.BaudRate    = 9600;
+	    dcb.ByteSize    = 8;
+	    dcb.Parity      = NOPARITY;
+	    dcb.StopBits    = ONESTOPBIT;
 
-		DWORD dwRead;
-		BOOL fWaitingOnRead = FALSE;
-		OVERLAPPED osReader = {0};
-		DCB ard;
-
-		const int MAX_BUF_SIZE = 256;
-		char buf[MAX_BUF_SIZE];
+	    if (!::SetCommState (serialArd,&dcb)) {
+	    	std::cout << "Could not set communication state.\n";
+	    	return 1;
+	    }
 
 		// Create the overlapped event. Must be closed before exiting
 		// to avoid a handle leak.
@@ -34,45 +48,33 @@ int main() {
 
 		if (osReader.hEvent == NULL) {
 		   // Error creating overlapped event; abort.
+			CloseHandle(serialArd);
 			return 1;
 		}
 
-	   FillMemory(&ard, sizeof(ard), 0);
-	   ard.DCBlength = sizeof(ard);
-	   if (!BuildCommDCB("9600,n,8,1", &ard)) {
-		  // Couldn't build the DCB. Usually a problem
-		  // with the communications specification string.
-		   //std::cout << "Could not prepare serial communication on port.";
-		   return FALSE;
-	   }
-	   else {
-		  // DCB is ready for use.
-		   std::cout<< "Ready for serial communication on port.";
-
-			if (!fWaitingOnRead) {
-				// Issue read operation.
-				if (!ReadFile(serialArd, buf, MAX_BUF_SIZE, &dwRead, &osReader)) {
-					  if (GetLastError() != ERROR_IO_PENDING) {    // read not delayed?
-						 // Error in communications; report it.
-						  std::cout << "Could not read from port.";
-						  return 1;
-					  }
-					  else
-						 fWaitingOnRead = TRUE;
+		if (!fWaitingOnRead) {
+			// Issue read operation.
+			if (!ReadFile(serialArd, buf, MAX_BUF_SIZE-1, &dwRead, &osReader)) {
+				  if (GetLastError() != ERROR_IO_PENDING) {    // read not delayed?
+					 // Error in communications; report it.
+					  std::cout << "Could not read from port.\n";
+					  CloseHandle(serialArd);
+					  return 1;
+				  }
+				  else
+					 fWaitingOnRead = TRUE;
+			 }
+			 else {
+			  // read completed immediately
+				 std::cout << "Successfully read from port.\n";
+				 for(int i=0; i<MAX_BUF_SIZE; i++) {
+					 std::cout << buf[i];
 				 }
-				 else {
-				  // read completed immediately
-					 std::cout << "Successfully read from port.";
-
-					 //for debugging: output serial data to console
-					 for(int i=0; i<MAX_BUF_SIZE; i++) {
-						 std::cout << buf[i];
-					 }
-				}
 			}
-	   }
+		}
 	}
-   CloseHandle(serialArd);
+
+	CloseHandle(serialArd);
 	return 0;
 }
 
