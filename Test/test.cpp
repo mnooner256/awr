@@ -36,13 +36,15 @@ int main() {
 		   // Error creating overlapped event; abort.
 			return 1;
 		}
+		Tetst
+
 
 	   FillMemory(&ard, sizeof(ard), 0);
 	   ard.DCBlength = sizeof(ard);
 	   if (!BuildCommDCB("9600,n,8,1", &ard)) {
 		  // Couldn't build the DCB. Usually a problem
 		  // with the communications specification string.
-		   //std::cout << "Could not prepare serial communication on port.";
+		   std::cout << "Could not prepare serial communication on port.";
 		   return FALSE;
 	   }
 	   else {
