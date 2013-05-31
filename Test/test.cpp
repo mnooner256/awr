@@ -67,12 +67,7 @@ int main()
 			 }
 			 else {
 			  // read successful
-//				 for(int i=0; i<MAX_BUF_SIZE; i++) {
-//					 std::cout << buf[i];
-//				 }
-
-					 std::cout <<buf;
-
+				std::cout << buf;
 			}
 		}
 	}
