@@ -53,7 +53,7 @@ int main()
 			return 1;
 		}
 
-		if (!fWaitingOnRead) {
+		while (!fWaitingOnRead) {
 			// Issue read operation.
 			if (!ReadFile(serialArd, buf, MAX_BUF_SIZE-1, &dwRead, &osReader)) {
 				  if (GetLastError() != ERROR_IO_PENDING) {    // read not delayed?
@@ -66,11 +66,13 @@ int main()
 					 fWaitingOnRead = TRUE;
 			 }
 			 else {
-			  // read completed immediately
-				 std::cout << "Successfully read from port.\n";
-				 for(int i=0; i<MAX_BUF_SIZE; i++) {
-					 std::cout << buf[i];
-				 }
+			  // read successful
+//				 for(int i=0; i<MAX_BUF_SIZE; i++) {
+//					 std::cout << buf[i];
+//				 }
+
+					 std::cout <<buf;
+
 			}
 		}
 	}
