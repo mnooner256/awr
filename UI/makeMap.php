@@ -19,16 +19,19 @@ if(!mysqli_connect_errno($con)){
 
       $m = $i.",".$j." ";
       fwrite($fh, $m);
-      if($ma[$i][$j] == 0){
+      $values = explode(";",$ma[$i][$j]);
+      if($values[0] == 0){
         fwrite($fh, "0");
       }
       else{
-        $result = mysqli_query($con, "SELECT RFID_tag FROM rfid_values WHERE number = ".$ma[$i][$j]);
+        $result = mysqli_query($con, "SELECT RFID_tag FROM rfid_values WHERE number = ".$values[0]);
   
         while($row = mysqli_fetch_array($result)){
         
           fwrite($fh, $row['RFID_tag']);
-        
+          if($values[1] != null){
+            fwrite($fh, ",".$values[1]);
+          }
         }
       }
     fwrite($fh, "\r\n");
@@ -39,5 +42,5 @@ else{
   mysqli_close($con);
 }
 
-fclose($fh); 
+fclose($fh);
 ?>

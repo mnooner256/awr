@@ -1,5 +1,4 @@
 function generate(){
-
     a = document.getElementById('rows').value;
     b = document.getElementById('column').value;
     a = a-1+1;
@@ -12,7 +11,7 @@ function generate(){
 
     for (var i = 0; i < a; i++) {
         for (var j = 0; j < b; j++){
-         m[i][j] = 0;  
+         m[i][j] = "0";  
         }
     }
     draw();
@@ -25,6 +24,9 @@ function draw(){
   var w = canvas.height;
   var la = l/a;
   var wb = w/b;
+  var arrayValue;
+  var holdString;
+
 
   if(canvas.getContext) {
 
@@ -36,20 +38,27 @@ function draw(){
 
       for(var j = 0; j < b; j++){
         
-        if(m[i][j]>0){
+        holdString = m[i][j];
+        if(holdString.indexOf(";") == -1){
+          arrayValue = (holdString-1)+1;
+        }
+        else{
+          arrayValue = holdString.slice(0,holdString.indexOf(";"));
+        }
+        
+        if(arrayValue>0){
           ctx.fillStyle="rgb(255,255,255)";
           ctx.fillRect(j*wb,i*la,wb,la);
           ctx.strokeRect(j*wb,i*la,wb,la);
         }
         else{
-          if(m[i][j]==-1){
-//ctx.fillStyle="rgb(120,255,120)";
-//ctx.fillRect(j*wb,i*la,wb,la);
+          if(arrayValue==-1){
+
 ctx.fillStyle="rgb(255,255,255)";
 ctx.fillRect(j*wb,i*la,wb,la);
 
 ctx.strokeStyle="grey";
-ctx.lineWidth="30";
+ctx.lineWidth=(la/4);
 ctx.beginPath();
 ctx.moveTo( (j*wb)+ (j*wb-((j-1)*wb))/2,((i+1)*la));
 ctx.lineTo( (j*wb)+ (j*wb-((j-1)*wb))/2, (i*la)+(((i+1)*la)-(i*la))/1.5);
@@ -60,31 +69,60 @@ ctx.moveTo((j*wb)+ (j*wb-((j-1)*wb))/2, (i*la));
 ctx.lineTo( (j*wb)+ (j*wb-((j-1)*wb))/2,(i*la)+(((i+1)*la)-(i*la))/3);
 ctx.stroke();
 
-ctx.lineWidth="15";
+ctx.lineWidth=(la/8);
 
 ctx.beginPath();
-ctx.moveTo( (j*wb)+ (j*wb-((j-1)*wb))/2.5, (i*la)+(((i+1)*la)-(i*la))/1.2);
+ctx.moveTo( (j*wb)+ (j*wb-((j-1)*wb))/2.5, (i*la)+(((i+1)*la)-(i*la))/1.5);
 ctx.lineTo( (j*wb)+ (j*wb-((j-1)*wb)), (i*la)+(((i+1)*la)-(i*la))/2);
 ctx.stroke();
 ctx.lineWidth="1";
 ctx.strokeStyle="black";
 
-    //        ctx.fillStyle="rgb(100,80,255)";
-    //        ctx.fillRect(j*wb,i*la,wb,la);
           }
           else{
-            if(m[i][j]==-999){
-            ctx.fillStyle="rgb(255,0,0)";
-            ctx.fillRect(j*wb,i*la,wb,la);
+            if(arrayValue==-2){
+
+ctx.fillStyle="rgb(255,255,255)";
+ctx.fillRect(j*wb,i*la,wb,la);
+
+ctx.strokeStyle="grey";
+ctx.lineWidth=(la/4);
+ctx.beginPath();
+ctx.moveTo( ((j+1)*wb), (i*la)+(i*la-((i-1)*la))/2);
+ctx.lineTo( (j*wb)+(((j+1)*wb)-(j*wb))/1.5, (i*la)+(i*la-((i-1)*la))/2);
+ctx.stroke();
+
+ctx.beginPath();
+ctx.moveTo( (j*wb), (i*la)+ (i*la-((i-1)*la))/2);
+ctx.lineTo( (j*wb)+(((j+1)*wb)-(j*wb))/3, (i*la)+ (i*la-((i-1)*la))/2);
+ctx.stroke();
+
+ctx.lineWidth=(la/8);
+
+ctx.beginPath();
+ctx.moveTo( (j*wb)+(((j+1)*wb)-(j*wb))/1.2, (i*la)+ (i*la-((i-1)*la))/2.5);
+ctx.lineTo( (j*wb)+(((j+1)*wb)-(j*wb))/2, (i*la)+ (i*la-((i-1)*la)));
+ctx.stroke();
+
+
+ctx.lineWidth="1";
+ctx.strokeStyle="black";
+            
             }
             else{
-              ctx.fillStyle="grey";
+              if(arrayValue==-9999){
+              ctx.fillStyle="rgb(255,0,0)";
               ctx.fillRect(j*wb,i*la,wb,la);
+              }
+              else{
+                ctx.fillStyle="grey";
+                ctx.fillRect(j*wb,i*la,wb,la);
+              }
             }
           }
+            ctx.fillStyle="rgb(255,255,255)";
+            ctx.strokeRect(j*wb,i*la,wb,la);
         }
-          ctx.fillStyle="rgb(255,255,255)";
-          ctx.strokeRect(j*wb,i*la,wb,la);
       }
     }
   }
@@ -113,23 +151,45 @@ function change(x, y){
   var xBox = x/wb;
   xBox = Math.floor(xBox);
   var initVal = m[yBox][xBox];
-  //if(initVal == -1){
- //   initVal = 0;
- // }
 
-  var value = prompt("Enter the RFID Value.(Empty or negative for walls)",initVal);
+  if(initVal.indexOf(";") == -1){
+    initVal = (initVal-1)+1;
+  }
+  else{
+    initVal = initVal.slice(0,initVal.indexOf(";"));
+  }
+
+
+  var value = prompt("Enter the RFID Value.(Empty or 0 for walls. -1 & -2 for doors)",initVal);
 
   if(value!=null){
-    if(value < -1){
-          value = 0;
+    if(value < 0){
+      if(value == -1){
+        var value2 = prompt("Enter the wall RFID Value.");
+        var value3 = prompt("Enter the room number.");
+      }
+      else{
+        if(value == -2){
+          var value2 = prompt("Enter the wall RFID Value.");
+          var value3 = prompt("Enter the room number.");
+        }
+        else{
+          value=0;
+        }
+      }
     }
-    value = value-1+1;
-
-
+  }
+//    value = value-1+1;
+    if(value2!=null){
+      if(value3!=null){
+        var hold = value2.concat(";");
+        hold = hold.concat(value3);
+        value = value.concat(";");
+        value = value.concat(hold);
+      }
+    }
 
     m[yBox][xBox] = value;
-
-  }
   
   draw();
 }
@@ -142,10 +202,21 @@ function showmatrix(){
 
 function changeEnd(x, y){
 
+  var holdString;
+  var arrayValue;
+
   for(var i = 0; i < a; i++){
     for(var j = 0; j < b; j++){
-      if(m[i][j] == -999){
-        m[i][j] = 0;
+      
+      holdString = m[i][j];
+      if(holdString.indexOf(";") == -1){
+        arrayValue = (holdString-1)+1;
+      }
+      else{
+        arrayValue = holdString.slice(0,holdString.indexOf(";"));
+      }
+      if(arrayValue == -9999){
+        m[i][j] = "0";
       }
     }
   }
@@ -156,8 +227,15 @@ function changeEnd(x, y){
   yBox = Math.floor(yBox);
   var xBox = x/wb;
   xBox = Math.floor(xBox);
-  if(m[yBox][xBox] > 0){
-    m[yBox][xBox] = -999;
+  holdString = m[yBox][xBox];
+  if(holdString.indexOf(";") == -1){
+    arrayValue = (holdString-1)+1;
+  }
+  else{
+    arrayValue = holdString.slice(0,holdString.indexOf(";"));
+  }
+  if(arrayValue > 0){
+    m[yBox][xBox] = "-9999";
     isEndSet=1;
     isEnd=0;
   }
@@ -170,17 +248,43 @@ function changeEnd(x, y){
 
 function lock(){
   var canLock = 0;
+  var holdString;
+  var arrayValue;
+
   for(var i = 0; i < a; i++){
 
     for(var j = 0; j < b; j++){
-
-      if(m[i][j]<0){
+      holdString = m[i][j];
+      if(holdString.indexOf(";") == -1){
+        arrayValue = (holdString-1)+1;
+      }
+      else{
+        arrayValue = holdString.slice(0,holdString.indexOf(";"));
+      }
+      if(arrayValue<-2){
         canLock = 1;
       }
     }
   }
  
   if(canLock == 0){
+
+    for(var i = 0; i < a; i++){
+
+      for(var j = 0; j < b; j++){
+        holdString = m[i][j];
+        if(holdString.indexOf(";") == -1){
+          arrayValue = (holdString-1)+1;
+        }
+        else{
+          arrayValue = holdString.slice(0,holdString.indexOf(";"));
+        }
+        if(arrayValue < 0 ){
+          m[i][j] = holdString.slice(holdString.indexOf(";")+1, holdString.length);
+        }
+      }
+    }
+    
     $.post("makeMap.php", {myarray : m}, function(){ 
     isLock = 1;
     alert("done");
@@ -220,7 +324,7 @@ function reset(){
   isEndSet = 0;
   for(var i = 0; i < a; i++){
     for(var j = 0; j < b; j++){
-      m[i][j] = -1;
+      m[i][j] = "0";
     }
   }
   draw();
