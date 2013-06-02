@@ -15,9 +15,10 @@ void main()
 {
 	fstream f, g;
 	int x_size, y_size, map_area, x, y, rfid;
-	Node start, end;
+	Node start, end, current;
 	Node* map;
 	Node* curr;
+	priority_queue<Node, vector<Node>, compareNode> open, closed;
 
 	//reads file sent by UI - path will be changed - downloaded from some source
 	f.open("C:/Users/fjr1983/Desktop/Map.txt", ios::in);
@@ -83,10 +84,18 @@ void main()
 				map[i].distance = (sqrt(pow(map[i].xPos - end.xPos, 2) + pow(map[i].yPos - end.yPos, 2)));
 			}
 		}
-		//won't stop until parent node is reached
-		while((curr->xPos != end.xPos) && (curr->yPos != end.yPos))
-		{
+		//pushes start node onto open list
+		open.push(start);
 
+		while(open.size() > 0)
+		{
+			//pops off closest node to destination and makes current
+			current = open.pop();
+
+			if(current.match(current, end))
+			{
+
+			}
 	}
 
 

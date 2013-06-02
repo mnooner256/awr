@@ -20,6 +20,7 @@ private:
 	double distance;	//distance to target
 	int priority;		//smaller means better - super high is a wall or elevator
 	long int rfid;		//holds RFID data
+	Node* parent;		//holds parent node
 public:
 	//default constructor
 	Node()
@@ -29,6 +30,7 @@ public:
 		distance = -1;
 		priority = -1;
 		rfid = -1;
+		parent = NULL;
 	}
 	//constructor from UI data
 	Node(int x_p, int y_p, int d, int p, int r)
@@ -38,6 +40,7 @@ public:
 		distance = d;
 		priority = p;
 		rfid = r;
+		parent = NULL;
 	}
 	//method to compare nodes
 	int compare(Node a, Node b)
