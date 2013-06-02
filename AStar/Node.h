@@ -16,63 +16,66 @@ using namespace std;
 class Node
 {
 private:
-	int xPos, yPos;		//holds x- and y- coordinates
-	double distance;	//distance to target
-	int priority;		//smaller means better - super high is a wall or elevator
-	long int rfid;		//holds RFID data
-	Node* parent;		//holds parent node
+    // current position
+    int xPos;
+    int yPos;
+    // total distance already travelled to reach the node
+    int level;
+    // priority = level + remaining distance estimate (smaller is higher)
+    int priority;
 public:
-	//default constructor
-	Node()
-	{
-		xPos = -1;
-		yPos = -1;
-		distance = -1;
-		priority = -1;
-		rfid = -1;
-		parent = NULL;
-	}
-	//constructor from UI data
-	Node(int x_p, int y_p, int d, int p, int r)
-	{
-		xPos = x_p;
-		yPos = y_p;
-		distance = d;
-		priority = p;
-		rfid = r;
-		parent = NULL;
-	}
-	//method to compare nodes
-	int compare(Node a, Node b)
-	{
-		int diff;
+    Node(int xp, int yp, int d, int p)
+    {
+    	xPos=xp;
+    	yPos=yp;
+    	level=d;
+    	priority=p;
+    }
 
-		diff = a.distance - b.distance;
+    int getxPos()
+    {
+    	return xPos;
+    }
 
-		if(diff >= 0)
-			return 1;
-		else
-			return 2;
-	}
-	//method to see if nodes are in same position
-	bool match(Node a, Node b)
-	{
-		if(a.xPos == b.xPos || a.yPos == b.yPos)
-			return true;
-		else
-			return false;
-	}
-}
+    int getyPos()
+    {
+    	return yPos;
+    }
 
-class compareNode
-{
-public:
-	bool operator()(Node& a, Node& b)
-	{
-		if((a.priority < b.priority) && (a.distance < b.distance))
-			return true;
-		return false;
-	}
+    int getLevel()
+    {
+    	return level;
+    }
+
+    int getPriority()
+    {
+    	return priority;
+    }
+
+    void updatePriority(const int & xDest, const int & yDest)
+    {
+        priority = level + estimate(xDest, yDest) * 10;
+    }
+
+    // give better priority to going straight instead of diagonally
+    void nextLevel(const int & i) // i: direction
+    {
+        level+=(dir==8?(i%2==0?10:14):10);
+    }
+
+    // Estimation function for the remaining distance to the goal.
+    const int & estimate(const int & xDest, const int & yDest) const
+    {
+        static int xd, yd, d;
+
+        xd = xDest-xPos;
+        yd = yDest-yPos;
+
+        //Distance Formula
+        d = static_cast<int>(sqrt(xd * xd + yd * yd));
+
+        return d;
+    }
 };
 
 #endif
