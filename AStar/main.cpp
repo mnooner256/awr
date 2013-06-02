@@ -65,10 +65,6 @@ void main()
 		g >> x >> y;
 		end.xPos = x;
 		end.yPos = y;
-
-
-
-
 	}
 
 

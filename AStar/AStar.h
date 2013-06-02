@@ -26,8 +26,8 @@ public:
 		curr = path;
 		start_x = start_y = end_x = end_y = -1;
 	}
-	//actual pathfinding algorithm
-	int* aStar()
+	//actual path-finding algorithm
+	int* aStar(int s_x, int s_y, int e_x, int e_y)
 	{
 
 	}

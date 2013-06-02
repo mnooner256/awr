@@ -59,6 +59,17 @@ public:
 		else
 			return false;
 	}
+}
+
+class compareNode
+{
+public:
+	bool operator()(Node& a, Node& b)
+	{
+		if((a.priority < b.priority) && (a.distance < b.distance))
+			return true;
+		return false;
+	}
 };
 
 #endif
