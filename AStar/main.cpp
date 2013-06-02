@@ -3,7 +3,9 @@ Program that brings it all together
 
 Created by: Francisco Ruiz
 ***************************************************************/
+#include <cmath>
 #include <fstream>
+#include <queue>
 #include "AStar.h"
 #include "Node.h"
 
@@ -40,6 +42,10 @@ void main()
 			{
 				curr->priority = 500000;
 			}
+			else
+			{
+				curr->priority = 1;
+			}
 			//increments pointer to next node in sequence
 
 			curr = map[i+1];
@@ -65,6 +71,22 @@ void main()
 		g >> x >> y;
 		end.xPos = x;
 		end.yPos = y;
+		//calculates distance for every node in map (except walls)
+		for(int i=0; i<x_size*y_size; i++)
+		{
+			if(map[i].priority == 500000)
+			{
+				map[i].distance = 500000;
+			}
+			else
+			{
+				map[i].distance = (sqrt(pow(map[i].xPos - end.xPos, 2) + pow(map[i].yPos - end.yPos, 2)));
+			}
+		}
+		//won't stop until parent node is reached
+		while((curr->xPos != end.xPos) && (curr->yPos != end.yPos))
+		{
+
 	}
 
 
