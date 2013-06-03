@@ -34,7 +34,7 @@ bool operator<(const Node &a, const Node &b)
 
 // A-star algorithm.
 // The route returned is a string of direction digits.
-string pathFind( const int & xStart, const int & yStart,
+string pathFind( const int &  xStart, const int & yStart,
                  const int & xFinish, const int & yFinish )
 {
     static priority_queue<Node> pq[2]; // list of open (not-yet-tried) nodes
