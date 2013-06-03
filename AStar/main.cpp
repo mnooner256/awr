@@ -24,8 +24,10 @@ const int dir = 8; 					// number of possible directions
 static int dx[dir]={1, 1, 0, -1, -1, -1, 0, 1};
 static int dy[dir]={0, 1, 1, 1, 0, -1, -1, -1};
 
+#include "Node.h"
+
 // Determine priority (in the priority queue)
-bool operator<(const Node & a, const Node & b)
+bool operator<(const Node &a, const Node &b)
 {
   return a.getPriority() > b.getPriority();
 }

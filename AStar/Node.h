@@ -19,7 +19,7 @@ private:
     // current position
     int xPos;
     int yPos;
-    // total distance already travelled to reach the node
+    // total distance already traveled to reach the node
     int level;
     // priority = level + remaining distance estimate (smaller is higher)
     int priority;
@@ -32,22 +32,22 @@ public:
     	priority=p;
     }
 
-    int getxPos()
+    int getxPos() const
     {
     	return xPos;
     }
 
-    int getyPos()
+    int getyPos() const
     {
     	return yPos;
     }
 
-    int getLevel()
+    int getLevel() const
     {
     	return level;
     }
 
-    int getPriority()
+    int getPriority() const
     {
     	return priority;
     }
@@ -64,9 +64,9 @@ public:
     }
 
     // Estimation function for the remaining distance to the goal.
-    const int & estimate(const int & xDest, const int & yDest) const
+    int estimate(const int & xDest, const int & yDest) const
     {
-        static int xd, yd, d;
+        int xd, yd, d;
 
         xd = xDest-xPos;
         yd = yDest-yPos;
