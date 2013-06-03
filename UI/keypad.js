@@ -5,24 +5,15 @@ here
 
  function open(){
 	alert("Welcome (/^_^)/");
- }
- open();
-
- function x(num7){
- alert(num7)
-	 }
- x();
- 
- function num8(){
-	("8");
- }
- num8();
+}
+open();
  
  function showNumber(num){
    var tbox = document.getElementById("rooms");
    tbox.value = tbox.value+num;
    total = total + num;
  }
+ 
  function showTotal(){
    alert(total);
  }
