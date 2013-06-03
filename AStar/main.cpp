@@ -15,10 +15,8 @@ using namespace std;
 //Random Numbers - tired of trying to fstream - will finish later
 const int n = 25;
 const int m = 25;
-static int map[n][m];
-static int closed_nodes_map[n][m]; 	// map of closed (tried-out) nodes
-static int open_nodes_map[n][m]; 	// map of open (not-yet-tried) nodes
-static int dir_map[n][m]; 			// map of directions
+int map[n][m];
+int dir_map[n][m]; 			// map of directions
 const int dir = 8; 					// number of possible directions
 
 static int dx[dir]={1, 1, 0, -1, -1, -1, 0, 1};
@@ -37,18 +35,20 @@ bool operator<(const Node &a, const Node &b)
 string pathFind( const int &  xStart, const int & yStart,
                  const int & xFinish, const int & yFinish )
 {
-    static priority_queue<Node> pq[2]; // list of open (not-yet-tried) nodes
-    static int pqi; // pq index
-    static Node* n0;
+    priority_queue<Node*> open_queue; // list of open (not-yet-tried) nodes
+    priority_queue<Node*> closed_queue; // list of tried nodes
+    int closed_nodes_map[n][m]; 	// map of closed (tried-out) nodes
+    int open_nodes_map[n][m]; 	// map of open (not-yet-tried) nodes
+    Node* node;
     static Node* m0;
-    static int i, j, x, y, xdx, ydy;
+    static int i, y, j, x, xdx, ydy;
     static char c;
-    pqi=0;
+    char buffer[200];
 
-    // reset the node maps
-    for(y=0;y<m;y++)
+    // intiliaze the node maps to zero
+    for(int y=0; y < m; y++)
     {
-        for(x=0;x<n;x++)
+        for(int x=0; x < n; x++)
         {
             closed_nodes_map[x][y]=0;
             open_nodes_map[x][y]=0;
@@ -56,60 +56,59 @@ string pathFind( const int &  xStart, const int & yStart,
     }
 
     // create the start node and push into list of open nodes
-    n0=new Node(xStart, yStart, 0, 0);
-    n0->updatePriority(xFinish, yFinish);
-    pq[pqi].push(*n0);
-    open_nodes_map[x][y]=n0->getPriority(); // mark it on the open nodes map
+    node = new Node(xStart, yStart, 0, 0);
+    node->updatePriority(xFinish, yFinish);
+    open_queue.push(node);
+    open_nodes_map[xStart][yStart] = node->getPriority(); // mark it on the open nodes map
 
     // A* search
-    while(!pq[pqi].empty())
+    while(!open_queue.empty())
     {
         // get the current node w/ the highest priority
         // from the list of open nodes
-        n0=new Node( pq[pqi].top().getxPos(), pq[pqi].top().getyPos(),
-                     pq[pqi].top().getLevel(), pq[pqi].top().getPriority());
+        node = open_queue.top();
+        open_queue.pop();
 
-        x=n0->getxPos(); y=n0->getyPos();
+        //Node's x and y position
+        x = node->getxPos();
+        y = node->getyPos();
 
-        pq[pqi].pop(); // remove the node from the open list
-        open_nodes_map[x][y]=0;
         // mark it on the closed nodes map
         closed_nodes_map[x][y]=1;
 
         // quit searching when the goal state is reached
-        //if((*n0).estimate(xFinish, yFinish) == 0)
-        if(x==xFinish && y==yFinish)
+        if(x == xFinish && y == yFinish)
         {
             // generate the path from finish to start
             // by following the directions
             string path="";
-            while(!(x==xStart && y==yStart))
+            while(!(x == xStart && y == yStart))
             {
                 j=dir_map[x][y];
-                c='0'+(j+dir/2)%dir;
-                path=c+path;
+                sprintf(buffer, "%i,%s", buffer, ((j+dir/2)%dir));
                 x+=dx[j];
                 y+=dy[j];
             }
-
+            path=buffer;
             // garbage collection
-            delete n0;
+            delete node;
             // empty the leftover nodes
-            while(!pq[pqi].empty()) pq[pqi].pop();
+            while(!open_queue.empty()) open_queue.pop();
             return path;
         }
 
         // generate moves (child nodes) in all possible directions
         for(i=0;i<dir;i++)
         {
-            xdx=x+dx[i]; ydy=y+dy[i];
+            xdx = x+dx[i];
+            ydy = y+dy[i];
 
             if(!(xdx<0 || xdx>n-1 || ydy<0 || ydy>m-1 || map[xdx][ydy]==1
                 || closed_nodes_map[xdx][ydy]==1))
             {
                 // generate a child node
-                m0=new Node( xdx, ydy, n0->getLevel(),
-                             n0->getPriority());
+                m0=new Node( xdx, ydy, node->getLevel(),
+                             node->getPriority());
                 m0->nextLevel(i);
                 m0->updatePriority(xFinish, yFinish);
 
@@ -117,7 +116,7 @@ string pathFind( const int &  xStart, const int & yStart,
                 if(open_nodes_map[xdx][ydy]==0)
                 {
                     open_nodes_map[xdx][ydy]=m0->getPriority();
-                    pq[pqi].push(*m0);
+                    open_queue.push(m0);
                     // mark its parent node direction
                     dir_map[xdx][ydy]=(i+dir/2)%dir;
                 }
@@ -132,28 +131,21 @@ string pathFind( const int &  xStart, const int & yStart,
                     // by emptying one pq to the other one
                     // except the node to be replaced will be ignored
                     // and the new node will be pushed in instead
-                    while(!(pq[pqi].top().getxPos()==xdx &&
-                           pq[pqi].top().getyPos()==ydy))
+                    while(!(open_queue.top()->getxPos()==xdx &&
+                           open_queue.top()->getyPos()==ydy))
                     {
-                        pq[1-pqi].push(pq[pqi].top());
-                        pq[pqi].pop();
+                        closed_queue.push(open_queue.top());
+                        open_queue.pop();
                     }
-                    pq[pqi].pop(); // remove the wanted node
-
-                    // empty the larger size pq to the smaller one
-                    if(pq[pqi].size()>pq[1-pqi].size()) pqi=1-pqi;
-                    while(!pq[pqi].empty())
-                    {
-                        pq[1-pqi].push(pq[pqi].top());
-                        pq[pqi].pop();
-                    }
-                    pqi=1-pqi;
-                    pq[pqi].push(*m0); // add the better node instead
+                    open_queue.pop(); // remove the wanted node
                 }
-                else delete m0; // garbage collection
+                else
+                {
+                	delete m0; // garbage collection
+                }
             }
         }
-        delete n0; // garbage collection
+        delete node; // garbage collection
     }
     return ""; // no route found
 }
@@ -180,11 +172,12 @@ int main()
     fstream f;
     f.open("C:/Users/Francisco/Desktop/End.txt", ios::in);
 
-    //Through magic, get xA and yA(start points)
-    //Then, proceed to get xB and yB
-
-    f >> xB >> yB;
-
+    //random start and end (for now)
+    xA = 1;
+    yA = 1;
+    xB = 4;
+    yB = 3;
+    //finds path
     string route = pathFind(xA, yA, xB, yB);
 
     //checks for empty route
@@ -193,6 +186,7 @@ int main()
     	cout << "An empty route generated!" << endl;
     }
 
-    //Through magic, relay instructions to Arduino
+    cout << route;
+
     return(0);
 }
