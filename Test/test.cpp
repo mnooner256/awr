@@ -11,6 +11,7 @@
 
 int main()
 {
+
 	const int dataLength = 256;
 	int readResult = 0;
 	char buf[dataLength] = "";
