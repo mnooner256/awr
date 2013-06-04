@@ -18,7 +18,7 @@ int main()
 	// application reads from the specified serial port and reports the collected data
 	printf("Welcome to the serial test app!\n\n");
 
-	Serial* SP = new Serial("\\\\.\\COM4");    // adjust as needed
+	Serial* SP = new Serial("COM4");    // adjust as needed
 
 	if (SP->IsConnected())
 		printf("We're connected");
