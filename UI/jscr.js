@@ -156,11 +156,14 @@ function change(x, y){
     initVal = (initVal-1)+1;
   }
   else{
-    initVal = initVal.slice(0,initVal.indexOf(";"));
+   // initVal = initVal.slice(0,initVal.indexOf(";"));
   }
 
 
   var value = prompt("Enter the RFID Value.(Empty or 0 for walls. -1 & -2 for doors)",initVal);
+  var value2 = null;
+  var value3 = null;
+ 
 
   if(value!=null){
     if(value < 0){
@@ -174,12 +177,17 @@ function change(x, y){
           var value3 = prompt("Enter the room number.");
         }
         else{
-          value=0;
+          value="0";
         }
       }
     }
   }
+  else{
+    value = "0";
+  }
+
 //    value = value-1+1;
+
     if(value2!=null){
       if(value3!=null){
         var hold = value2.concat(";");
@@ -268,23 +276,8 @@ function lock(){
   }
  
   if(canLock == 0){
-
-    for(var i = 0; i < a; i++){
-
-      for(var j = 0; j < b; j++){
-        holdString = m[i][j];
-        if(holdString.indexOf(";") == -1){
-          arrayValue = (holdString-1)+1;
-        }
-        else{
-          arrayValue = holdString.slice(0,holdString.indexOf(";"));
-        }
-        if(arrayValue < 0 ){
-          m[i][j] = holdString.slice(holdString.indexOf(";")+1, holdString.length);
-        }
-      }
-    }
     
+    $.post("makeMapData.php", {myarray : m});
     $.post("makeMap.php", {myarray : m}, function(){ 
     isLock = 1;
     alert("done");
@@ -330,3 +323,43 @@ function reset(){
   draw();
 }
 
+function load(){
+  var holder1;
+  var holder2;
+  var counter = 0;
+  jQuery.get('http://localhost/Map/map_data.txt', function(data){
+  
+  while(data.length > 0){
+    holder1 = data.slice(0,data.indexOf("."));
+    data = data.slice(data.indexOf(".")+1, data.length);
+    if(counter==0){
+      a = holder1.slice(0,holder1.indexOf(","));
+      b = holder1.slice(holder1.indexOf(",")+1, holder1.length);   
+      m = new Array(a);
+
+      for (var x = 0; x<a;x++){
+        m[x] = new Array(b);
+      }
+
+      for (var i = 0; i < a; i++) {
+        for (var j = 0; j < b; j++){
+         m[i][j] = "0";  
+        }
+      }
+    }
+    else{
+      var i = holder1.slice(0,holder1.indexOf(","));
+      var j = holder1.slice(holder1.indexOf(",")+1, holder1.indexOf(":"));
+      i = i-1+1;
+      j = j-1+1;
+      var value = holder1.slice(holder1.indexOf(":")+1, holder1.length);
+      value = value.concat("");
+      m[i][j] = value;
+    }
+    counter++;
+
+  }
+    draw();  
+});
+
+}

@@ -13,13 +13,19 @@ if(!mysqli_connect_errno($con)){
   $w = max(array_map('count', $ma));
   $l = count($ma);
 
+  fwrite($fh, $l." ".$w);
+  fwrite($fh, "\r\n");
 
   for ($i = 0; $i<$l; $i++){
     for ($j = 0; $j<$w; $j++){
 
-      $m = $i.",".$j." ";
+      $m = $i." ".$j." ";
       fwrite($fh, $m);
       $values = explode(";",$ma[$i][$j]);
+      if($values[0] < 0){
+        $values[0] = $values[1];
+        $values[1] = $values[2];
+      }
       if($values[0] == 0){
         fwrite($fh, "0");
       }
@@ -30,7 +36,9 @@ if(!mysqli_connect_errno($con)){
         
           fwrite($fh, $row['RFID_tag']);
           if($values[1] != null){
-            fwrite($fh, ",".$values[1]);
+            fwrite($fh, " ".$values[1]);
+            $location = $l." ".$w;
+            mysqli_query($con, "INSERT INTO room_locations VALUES ('$values[1]', '$location')");
           }
         }
       }
