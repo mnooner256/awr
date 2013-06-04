@@ -22,19 +22,27 @@ int main()
 	Serial* SP = new Serial("COM4");    // adjust as needed
 
 	if (SP->IsConnected())
-		printf("We're connected");
+		printf("We're connected\n");
+
+    OVERLAPPED osReader = {0};
+    // Create the overlapped event. Must be closed before exiting
+	// to avoid a handle leak.
+	osReader.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
+
+	if (osReader.hEvent == NULL) {
+	   // Error creating overlapped event; abort.
+		return 1;
+	}
 
 	while(SP->IsConnected())
 	{
-		readResult = SP->ReadData(buf,dataLength);
-		printf("Bytes read: (-1 means no data available) %i\n",readResult);
 
-		std::string test(buf);
+		char buf[dataLength] = "";
 
-		printf("%s",buf);
-		test = "";
-
-		Sleep(500);
+		readResult = SP->ReadData(buf,dataLength, osReader);
+		Sleep(50);			//Wait for communication to initialize
+		//printf("Bytes read: (-1 means no data available) %i\n",readResult);
+		std::cout <<buf;
 	}
 	return 0;
 }
