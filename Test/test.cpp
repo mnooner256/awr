@@ -36,7 +36,6 @@ int main()
 
 	while(SP->IsConnected())
 	{
-
 		char buf[dataLength] = "";
 
 		readResult = SP->ReadData(buf,dataLength, osReader);

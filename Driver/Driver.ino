@@ -37,10 +37,13 @@ void loop()
   //for debugging purposes
   Serial.println("Test");
  
-  if(flag == 1) RFID();
+  if(flag == 1) {
+    RFID();
   
    //while (Serial.available() < 1) {} // Wait until a character is received
-   char val = 'a'; //Serial.read();
+   //char val = Serial.read();
+   //while(flag == 0) { Serial.println(val); }
+  }
    int leftspeed = 255; //255 is maximum speed 
    int rightspeed = 255;
 //   switch(val) // Perform an action depending on the command

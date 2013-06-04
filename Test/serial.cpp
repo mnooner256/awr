@@ -77,7 +77,7 @@ Serial::~Serial()
     }
 }
 
-int Serial::ReadData(char *buffer, unsigned int nbChar)
+int Serial::ReadData(char *buffer, unsigned int nbChar, OVERLAPPED osReader)
 {
     //Number of bytes we'll have read
     DWORD bytesRead;
@@ -101,8 +101,8 @@ int Serial::ReadData(char *buffer, unsigned int nbChar)
         }
 
         //Try to read the require number of chars, and return the number of read bytes on success
-        if(ReadFile(this->serialArd, buffer, toRead, &bytesRead, NULL) && bytesRead != 0) {
-            return bytesRead;
+        if(ReadFile(this->serialArd, buffer, toRead, &bytesRead, &osReader) && bytesRead != 0) {
+			return bytesRead;
         }
 
     }
@@ -112,7 +112,7 @@ int Serial::ReadData(char *buffer, unsigned int nbChar)
 }
 
 
-bool Serial::WriteData(char *buffer, unsigned int nbChar)
+bool Serial::WriteData(char *buffer, unsigned int nbChar, OVERLAPPED osReader)
 {
     DWORD bytesSend;
 
