@@ -22,6 +22,6 @@ void RFID() {
   Serial.println(tagString);           // send ID# to serial monitor
   Serial.println(tagString);           // send ID# to serial monitor
   }
-  delay(250);
+  //delay(250);
   flag =0;
 }

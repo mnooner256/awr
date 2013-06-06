@@ -40,9 +40,9 @@ void loop()
   if(flag == 1) {
     RFID();
   
-   //while (Serial.available() < 1) {} // Wait until a character is received
-   //char val = Serial.read();
-   //while(flag == 0) { Serial.println(val); }
+   while (Serial.available() < 1) {} // Wait until a character is received
+   char val = Serial.read();
+   while(flag == 0) { Serial.println(val); }
   }
    int leftspeed = 255; //255 is maximum speed 
    int rightspeed = 255;

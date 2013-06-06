@@ -38,11 +38,16 @@ int main()
 
 		if(fWaitingOnRead) {
 			readResult = SP->ReadData(buf,dataLength, osReader);
-			Sleep(50);			//Wait for communication to initialize
+			//Sleep(50);			//Wait for communication to initialize
 			//printf("Bytes read: (-1 means no data available) %i\n",readResult);
-			std::cout <<buf;
+			std::string str(buf);
+			int index =0;
+			index = str.find_first_of('6');
+			for(int i=index; i<strlen(buf); i++) {
+				std::cout <<buf[i];
+			}
 
-			if(readResult >= 12 ) fWaitingOnRead = FALSE;
+			if(index <= str.length() ) fWaitingOnRead = FALSE;
 		}
 		if(!fWaitingOnRead) {
 			std::cout <<"What would you like to send? ";

@@ -19,7 +19,7 @@ Serial::Serial(char *portName)
     this->serialArd = CreateFile(portName,
             GENERIC_READ | GENERIC_WRITE,
             0, NULL, OPEN_EXISTING,
-            FILE_FLAG_OVERLAPPED, 0);
+            FILE_ATTRIBUTE_NORMAL, 0);
 
     //Check if the connection was successful
     if(this->serialArd==INVALID_HANDLE_VALUE) {
