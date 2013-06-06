@@ -8,7 +8,6 @@
 #include <iostream>
 #include "serial.h"
 #include <Windows.h>
-#include <string>
 
 const int dataLength = 256;
 
@@ -17,9 +16,9 @@ BOOL write(Serial* SP, OVERLAPPED osReader, char* msg)
 	char send[dataLength] = "";
 	BOOL writeResult = FALSE;
 
-	if(strlen(msg) <= 1){
+	if(strlen(msg) < 1){
 		std::cout <<"What would you like to send? ";
-		scanf( send);
+		scanf(send);
 		writeResult = SP->WriteData(send,strlen(send),osReader);
 	}
 	else {
@@ -27,71 +26,72 @@ BOOL write(Serial* SP, OVERLAPPED osReader, char* msg)
 	}
 	if(!writeResult) {
 		std::cout <<"Could not write to serial port.\n";
+		return writeResult;
+	}else {
+		return writeResult = TRUE;
 	}
-	return writeResult;
 }
 
-char* read(Serial* SP, OVERLAPPED osReader, char* msg)
+BOOL read(Serial* SP, OVERLAPPED osReader, char* msg)
 {
 	int readResult = 0;
-	char buf[dataLength] = "";
 
-	readResult = SP->ReadData(buf,dataLength, osReader);
+	readResult = SP->ReadData(msg,dataLength, osReader);
+	char* ptr = strstr(msg,"RFID:");
+	if( ptr != NULL){
 
-	if( strstr(buf,"Hello") != NULL){
-		write(SP,osReader,"Hello");
-		readResult = SP->ReadData(buf,dataLength, osReader);
-		std::string str(buf);
-		int index = str.find_first_of("0123456789ABCDEF");
+	}
+	if(readResult >=0) return TRUE;
+	return FALSE;
+}
 
-		if(index <= str.length() ) {
-			tag.append( str.substr(index,str.find_first_not_of("0123456789ABCDEF")) );
-
-			if(tag.length()>= 12) {
-				std::cout << tag << std::endl;
-				tag.clear();
-
+BOOL initComm(Serial* SP, OVERLAPPED osReader, char* msg) {
+	if(read(SP,osReader,msg)){
+		if(strcmp(msg,"H\n")==0){
+			if(write(SP, osReader,"H\n")){
+				std::cout<< "Connected to the Arduino." << std::endl;
+				return TRUE;
 			}
 		}
+		else std::cout << "did not receive proper msg" << std::endl;
 	}
-	if(readResult >=0) return buf;
-	return buf;
+	return FALSE;
 }
 
 int main()
 {
 	BOOL fWaitingOnRead = TRUE;
-	char buf[dataLength] = "";
 
     OVERLAPPED osReader = {0};
-	std::string tag;
 
 	Serial* SP = new Serial("COM4");
 
 	if (SP->IsConnected())
 		printf("We're connected\n");
 
-    // Create the overlapped event. Must be closed before exiting
-	// to avoid a handle leak.
 	osReader.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
 
 	if (osReader.hEvent == NULL) {
-	   // Error creating overlapped event; abort.
+	   // Error creating event; abort.
 		return 1;
 	}
 
-	while(SP->IsConnected())
-	{
-		char msg[dataLength] = "";
+	char msg[dataLength] = "";
+	while(!initComm(SP, osReader, msg)){
 
-		if(fWaitingOnRead) {
-			if(read(SP, osReader,msg)) {
-				fWaitingOnRead = FALSE;
+		while(SP->IsConnected())
+		{
+			if(fWaitingOnRead) {
+				if(read(SP, osReader,msg)) {
+					std::cout << msg;
+					fWaitingOnRead = FALSE;
+				}
 			}
-		}
-		if(!fWaitingOnRead) {
-			if(!write(SP, osReader,""))
-				fWaitingOnRead = TRUE;
+			if(!fWaitingOnRead) {
+				if(write(SP, osReader, ""))
+					fWaitingOnRead = TRUE;
+			}
+
 		}
 	}
 

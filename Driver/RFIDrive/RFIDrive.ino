@@ -5,13 +5,17 @@ int pin = 13;
 volatile int state = LOW;
 char tag[100];
 char dir;
+char confirm;
 void setup()
 {
-  pinMode(pin, OUTPUT);  
-  pinMode(2, OUTPUT);
-  
   Serial.begin(9600);
   id20.begin(9600);
+  
+  Serial.println("H");
+  confirm = Serial.read();
+  if(confirm == "H") {
+    digitalWrite(13, HIGH);
+  }
 }
 
 void loop()
@@ -19,6 +23,7 @@ void loop()
   scan_rfid();
   read_from_controller();
 }
+
 void read_from_controller(){
   if(Serial.available() >0){
     dir = Serial.read();
@@ -33,6 +38,7 @@ void read_from_controller(){
 
 void drive_motors() {
 }
+
 void scan_rfid() {
   int bytes = 0;
   if (id20.available() > 0) {
