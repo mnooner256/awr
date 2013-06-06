@@ -34,26 +34,28 @@ BOOL write(Serial* SP, OVERLAPPED osReader, char* msg)
 
 BOOL read(Serial* SP, OVERLAPPED osReader, char* msg)
 {
-	int readResult = 0;
+	int readResult = -1;
+	BOOL finished = FALSE;
 
-	readResult = SP->ReadData(msg,dataLength, osReader);
-	char* ptr = strstr(msg,"RFID:");
-	if( ptr != NULL){
-
+	while(readResult == -1){
+		readResult = SP->ReadData(msg,dataLength, osReader);
 	}
-	if(readResult >=0) return TRUE;
-	return FALSE;
+	if(readResult >=0){
+		finished = TRUE;
+	}
+	return finished;
 }
 
 BOOL initComm(Serial* SP, OVERLAPPED osReader, char* msg) {
+
 	if(read(SP,osReader,msg)){
-		if(strcmp(msg,"H\n")==0){
+		if(msg[0]=='H'){
 			if(write(SP, osReader,"H\n")){
 				std::cout<< "Connected to the Arduino." << std::endl;
 				return TRUE;
 			}
 		}
-		else std::cout << "did not receive proper msg" << std::endl;
+		else std::cout << "Did not receive proper msg." << std::endl;
 	}
 	return FALSE;
 }
@@ -61,23 +63,19 @@ BOOL initComm(Serial* SP, OVERLAPPED osReader, char* msg) {
 int main()
 {
 	BOOL fWaitingOnRead = TRUE;
-
     OVERLAPPED osReader = {0};
-
 	Serial* SP = new Serial("COM4");
+	char msg[dataLength] = "";
 
 	if (SP->IsConnected())
 		printf("We're connected\n");
 
 	osReader.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
-
 	if (osReader.hEvent == NULL) {
-	   // Error creating event; abort.
-		return 1;
+		return 1; 	// Error creating event; abort.
 	}
 
-	char msg[dataLength] = "";
-	while(!initComm(SP, osReader, msg)){
+	if(initComm(SP, osReader, msg)){
 
 		while(SP->IsConnected())
 		{
@@ -91,9 +89,7 @@ int main()
 				if(write(SP, osReader, ""))
 					fWaitingOnRead = TRUE;
 			}
-
 		}
 	}
-
 	return 0;
 }

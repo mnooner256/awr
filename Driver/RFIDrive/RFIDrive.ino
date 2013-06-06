@@ -5,23 +5,30 @@ int pin = 13;
 volatile int state = LOW;
 char tag[100];
 char dir;
-char confirm;
+char confirm = NULL;
+int hand_flag = 0;
+
 void setup()
 {
   Serial.begin(9600);
   id20.begin(9600);
-  
-  Serial.println("H");
+  digitalWrite(13, LOW);
+    
+  Serial.flush();
+  Serial.print('H');
   confirm = Serial.read();
-  if(confirm == "H") {
+  if(confirm == 'H') {
     digitalWrite(13, HIGH);
+    hand_flag = 1;
   }
 }
 
 void loop()
 {
-  scan_rfid();
-  read_from_controller();
+  if(hand_flag ==  1){
+    scan_rfid();
+    read_from_controller();
+  }
 }
 
 void read_from_controller(){
