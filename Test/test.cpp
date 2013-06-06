@@ -8,6 +8,7 @@
 #include <iostream>
 #include "serial.h"
 #include <Windows.h>
+#include <string>
 
 int main()
 {
@@ -16,6 +17,7 @@ int main()
 	const int dataLength = 256;
 	int readResult = 0;
 	char buf[dataLength] = "";
+	std::string tag;
 
 	Serial* SP = new Serial("COM4");
 
@@ -41,13 +43,18 @@ int main()
 			//Sleep(50);			//Wait for communication to initialize
 			//printf("Bytes read: (-1 means no data available) %i\n",readResult);
 			std::string str(buf);
-			int index =0;
-			index = str.find_first_of('6');
-			for(int i=index; i<strlen(buf); i++) {
-				std::cout <<buf[i];
-			}
+			int index = str.find_first_of("0123456789ABCDEF");
 
-			if(index <= str.length() ) fWaitingOnRead = FALSE;
+			if(index <= str.length() ) {
+				tag.append( str.substr(index,str.find_first_not_of("0123456789ABCDEF")) );
+
+				if(tag.length()>= 12) {
+					std::cout << tag << std::endl;
+					tag = "";
+					fWaitingOnRead = FALSE;
+				}
+
+			}
 		}
 		if(!fWaitingOnRead) {
 			std::cout <<"What would you like to send? ";
