@@ -13,38 +13,77 @@ Description: Controls and directs the Rover with received instructions (a single
 
 SoftwareSerial id20(3,4); // virtual serial port(RX,TX)
 char i;
-int flag =0;              // flag variable for RFID interrupt
+volatile int flag =LOW;              // flag variable for RFID interrupt
 
 int E1 = 6; //M1 Speed Control
 int E2 = 5; //M2 Speed Control
 int M1 = 8; //M1 Direction Control
 int M2 = 7; //M2 Direction Control
 
-void RFID_ISR(){
-  flag =1;
-}
+
 void setup()
 {
-   for(int i=5; i<=8; i++)
-     pinMode(i, OUTPUT);
-   attachInterrupt(0, RFID_ISR, HIGH);
+//   for(int i=5; i<=8; i++)
+//     pinMode(i, OUTPUT);
+   
+   
+   attachInterrupt(0, RFID_ISR, CHANGE);
      
    Serial.begin(9600);
    id20.begin(9600);
+   
+   Serial.println("Setup Done!");
 }
 void loop()
 {
   //for debugging purposes
-  Serial.println("Hello World");
-
-  if(flag == 1) {
-    RFID();
+  Serial.println(flag);
   
-   //while (Serial.available() < 1) {} // Wait until a character is received
-   //char val = Serial.read();
-   //while(flag == 0) { Serial.println(val); }
+  if(flag == HIGH) {
+    test();
   }
-   int leftspeed = 255; //255 is maximum speed 
+  
+}
+
+void RFID_ISR(){
+  digitalWrite(13, HIGH);
+  flag =HIGH;
+}
+
+void test() {
+  Serial.println("Test");
+  digitalWrite(2, LOW);
+}
+
+void RFID() {
+  char tagString[18] = {'R','F','I','D',':'};
+  Serial.write("Hello World");
+  Serial.flush();
+  delay(100);
+  if(id20.available() ) {      
+    for( int index = 4; index < 12; index++ ) {  //once serial input is detected, loop until all 12 digits are collected
+      i = id20.read();                           // receive character from ID20
+      if((int)i>=48 && (int)i<=70){                        //check whether it is a valid hex value
+        tagString[index] = i;
+      }
+      else index--;                              //if it is not a hex digit, then do not count towards the 12 digits in ID
+    }
+  }
+  tagString[17] = '\0';
+  //if(tagString != NULL) {
+    Serial.println(tagString);           // send ID# to serial monitor
+ // }
+  
+  //Reset pin so we can read a new card
+  digitalWrite(2, LOW);
+  
+  delay(100);
+  
+  flag = 0;
+}
+void drive()
+{
+  int leftspeed = 255; //255 is maximum speed 
    int rightspeed = 255;
 //   switch(val) // Perform an action depending on the command
 //   {

@@ -10,13 +10,60 @@
 #include <Windows.h>
 #include <string>
 
+const int dataLength = 256;
+
+BOOL write(Serial* SP, OVERLAPPED osReader, char* msg)
+{
+	char send[dataLength] = "";
+	BOOL writeResult = FALSE;
+
+	if(strlen(msg) <= 1){
+		std::cout <<"What would you like to send? ";
+		scanf( send);
+		writeResult = SP->WriteData(send,strlen(send),osReader);
+	}
+	else {
+		writeResult = SP->WriteData(msg,strlen(msg),osReader);
+	}
+	if(!writeResult) {
+		std::cout <<"Could not write to serial port.\n";
+	}
+	return writeResult;
+}
+
+char* read(Serial* SP, OVERLAPPED osReader, char* msg)
+{
+	int readResult = 0;
+	char buf[dataLength] = "";
+
+	readResult = SP->ReadData(buf,dataLength, osReader);
+
+	if( strstr(buf,"Hello") != NULL){
+		write(SP,osReader,"Hello");
+		readResult = SP->ReadData(buf,dataLength, osReader);
+		std::string str(buf);
+		int index = str.find_first_of("0123456789ABCDEF");
+
+		if(index <= str.length() ) {
+			tag.append( str.substr(index,str.find_first_not_of("0123456789ABCDEF")) );
+
+			if(tag.length()>= 12) {
+				std::cout << tag << std::endl;
+				tag.clear();
+
+			}
+		}
+	}
+	if(readResult >=0) return buf;
+	return buf;
+}
+
 int main()
 {
 	BOOL fWaitingOnRead = TRUE;
-	BOOL writeResult = FALSE;
-	const int dataLength = 256;
-	int readResult = 0;
 	char buf[dataLength] = "";
+
+    OVERLAPPED osReader = {0};
 	std::string tag;
 
 	Serial* SP = new Serial("COM4");
@@ -24,7 +71,6 @@ int main()
 	if (SP->IsConnected())
 		printf("We're connected\n");
 
-    OVERLAPPED osReader = {0};
     // Create the overlapped event. Must be closed before exiting
 	// to avoid a handle leak.
 	osReader.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
@@ -36,34 +82,16 @@ int main()
 
 	while(SP->IsConnected())
 	{
-		char buf[dataLength] = "";
+		char msg[dataLength] = "";
 
 		if(fWaitingOnRead) {
-			readResult = SP->ReadData(buf,dataLength, osReader);
-			//Sleep(50);			//Wait for communication to initialize
-			//printf("Bytes read: (-1 means no data available) %i\n",readResult);
-			std::string str(buf);
-			int index = str.find_first_of("0123456789ABCDEF");
-
-			if(index <= str.length() ) {
-				tag.append( str.substr(index,str.find_first_not_of("0123456789ABCDEF")) );
-
-				if(tag.length()>= 12) {
-					std::cout << tag << std::endl;
-					tag.clear();
-					fWaitingOnRead = FALSE;
-				}
-
+			if(read(SP, osReader,msg)) {
+				fWaitingOnRead = FALSE;
 			}
 		}
 		if(!fWaitingOnRead) {
-			std::cout <<"What would you like to send? ";
-			std::cin >> buf[0];
-			writeResult = SP->WriteData(buf,1,osReader);
-			if(!writeResult) {
-				std::cout <<"Could not write to serial port.\n";
-			}
-			else fWaitingOnRead = TRUE;
+			if(!write(SP, osReader,""))
+				fWaitingOnRead = TRUE;
 		}
 	}
 
