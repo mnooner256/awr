@@ -5,19 +5,20 @@ int pin = 13;
 volatile int state = LOW;
 char tag[100];
 char dir;
-char confirm = NULL;
+char hand_var = 'H';
 int hand_flag = 0;
 
 void setup()
 {
   Serial.begin(9600);
   id20.begin(9600);
+  pinMode(13, OUTPUT);
   digitalWrite(13, LOW);
     
   Serial.flush();
-  Serial.print('H');
-  confirm = Serial.read();
-  if(confirm == 'H') {
+  Serial.print(hand_var);
+  char confirm = Serial.read();
+  if(confirm == hand_var) {
     digitalWrite(13, HIGH);
     hand_flag = 1;
   }
