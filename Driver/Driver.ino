@@ -30,19 +30,19 @@ void setup()
    attachInterrupt(0, RFID_ISR, HIGH);
      
    Serial.begin(9600);
-   id20.begin(9600); //
+   id20.begin(9600);
 }
 void loop()
 {
   //for debugging purposes
-  Serial.println("Test");
- 
+  Serial.println("Hello World");
+
   if(flag == 1) {
     RFID();
   
-   while (Serial.available() < 1) {} // Wait until a character is received
-   char val = Serial.read();
-   while(flag == 0) { Serial.println(val); }
+   //while (Serial.available() < 1) {} // Wait until a character is received
+   //char val = Serial.read();
+   //while(flag == 0) { Serial.println(val); }
   }
    int leftspeed = 255; //255 is maximum speed 
    int rightspeed = 255;

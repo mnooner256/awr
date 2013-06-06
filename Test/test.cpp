@@ -50,7 +50,7 @@ int main()
 
 				if(tag.length()>= 12) {
 					std::cout << tag << std::endl;
-					tag = "";
+					tag.clear();
 					fWaitingOnRead = FALSE;
 				}
 

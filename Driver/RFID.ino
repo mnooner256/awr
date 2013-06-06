@@ -19,8 +19,6 @@ void RFID() {
   //for debugging purposes
   if(tagString != NULL) {
     Serial.println(tagString);           // send ID# to serial monitor
-  Serial.println(tagString);           // send ID# to serial monitor
-  Serial.println(tagString);           // send ID# to serial monitor
   }
   //delay(250);
   flag =0;
