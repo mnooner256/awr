@@ -50,32 +50,23 @@ Node* getMap(int t_s)
 	return map;
 }
 
-//overloads < to compare node priorities
-bool operator<(const Node &a, const Node &b)
-{
-  return a.getPriority() > b.getPriority();
-}
-
-
-
 string pathFind(int& xStart, int& yStart, int& xFinish, int& yFinish )
 {
-    priority_queue<Node*> open_queue; // list of open (not-yet-tried) nodes
-    priority_queue<Node*> closed_queue; // list of tried nodes
+	priority_queue<Node*> open_queue; 	// list of open (not-yet-tried) nodes
+    vector<Node> closed_queue; 		  	// vector of tried nodes
 
     Node* node;
-    static Node* m0;
-    static int i, y, j, x, xdx, ydy;
-    static char c;
+    Node* child;
+    int x_pos, y_pos, xdx, ydy, temp;
     char buffer[200];
 
-    // intiliaze the node maps to zero
-    for(int y=0; y < m; y++)
+    // initialize the node maps to zero
+    for(int j=0; j < m; j++)
     {
-        for(int x=0; x < n; x++)
+        for(int k=0; k < n; k++)
         {
-            closed_nodes_map[x][y]=0;
-            open_nodes_map[x][y]=0;
+            closed_nodes_map[j][k]=0;
+            open_nodes_map[j][k]=0;
         }
     }
 
@@ -94,60 +85,69 @@ string pathFind(int& xStart, int& yStart, int& xFinish, int& yFinish )
         open_queue.pop();
 
         //Node's x and y position
-        x = node->getxPos();
-        y = node->getyPos();
+        x_pos = node->getxPos();
+        y_pos = node->getyPos();
 
         // mark it on the closed nodes map
-        closed_nodes_map[x][y]=1;
+        closed_nodes_map[x_pos][y_pos]=1;
 
         // quit searching when the goal state is reached
-        if(x == xFinish && y == yFinish)
+        if(x_pos == xFinish && y_pos == yFinish)
         {
             // generate the path from finish to start
             // by following the directions
             string path="";
-            while(!(x == xStart && y == yStart))
+            while(!(x_pos == xStart && y_pos == yStart))
             {
-                j=dir_map[x][y];
-                sprintf(buffer, "%i,%s", buffer, ((j+DIR/2)%DIR));
-                x+=dx[j];
-                y+=dy[j];
+                temp=dir_map[x_pos][y_pos];
+                sprintf(buffer, "%i,%s", buffer, ((temp+DIR/2)%DIR));
+                x_pos += dx[temp];
+                y_pos += dy[temp];
             }
-            path=buffer;
+
+            path = buffer;
             // garbage collection
+
             delete node;
             // empty the leftover nodes
-            while(!open_queue.empty()) open_queue.pop();
+
+            while(!open_queue.empty())
+            {
+            	open_queue.pop();
+            }
+
             return path;
         }
 
         // generate moves (child nodes) in all possible directions
-        for(i=0;i<DIR;i++)
+        for(int i=0;i<DIR;i++)
         {
-            xdx = x+dx[i];
-            ydy = y+dy[i];
+            xdx = x_pos + dx[i];
+            ydy = y_pos + dy[i];
 
             if(!(xdx<0 || xdx>n-1 || ydy<0 || ydy>m-1 || map[xdx][ydy]==1
                 || closed_nodes_map[xdx][ydy]==1))
             {
                 // generate a child node
-                m0=new Node( xdx, ydy, node->getLevel(),
-                             node->getPriority());
-                m0->nextLevel(i, DIR);
-                m0->updatePriority(xFinish, yFinish);
+                child=new Node(xdx, ydy, node->getLevel(), node->getPriority());
+                child->nextLevel(i, DIR);
+                child->updatePriority(xFinish, yFinish);
 
                 // if it is not in the open list then add into that
-                if(open_nodes_map[xdx][ydy]==0)
+                if(open_nodes_map[xdx][ydy] == 0)
                 {
-                    open_nodes_map[xdx][ydy]=m0->getPriority();
-                    open_queue.push(m0);
+                    open_nodes_map[xdx][ydy] = child->getPriority();
+                    open_queue.push(child);
+
                     // mark its parent node direction
-                    dir_map[xdx][ydy]=(i+DIR/2)%DIR;
+                    dir_map[xdx][ydy] = (i+DIR/2)%DIR;
                 }
-                else if(open_nodes_map[xdx][ydy]>m0->getPriority())
+
+                else if(open_nodes_map[xdx][ydy]>child->getPriority())
                 {
                     // update the priority info
-                    open_nodes_map[xdx][ydy]=m0->getPriority();
+                    open_nodes_map[xdx][ydy] = child->getPriority();
+
                     // update the parent direction info
                     dir_map[xdx][ydy]=(i+DIR/2)%DIR;
 
@@ -155,17 +155,17 @@ string pathFind(int& xStart, int& yStart, int& xFinish, int& yFinish )
                     // by emptying one pq to the other one
                     // except the node to be replaced will be ignored
                     // and the new node will be pushed in instead
-                    while(!(open_queue.top()->getxPos()==xdx &&
-                           open_queue.top()->getyPos()==ydy))
+                    while(!(open_queue.top()->getxPos() == xdx && open_queue.top()->getyPos() == ydy))
                     {
                         closed_queue.push(open_queue.top());
                         open_queue.pop();
                     }
+
                     open_queue.pop(); // remove the wanted node
                 }
                 else
                 {
-                	delete m0; // garbage collection
+                	delete child; // garbage collection
                 }
             }
         }
