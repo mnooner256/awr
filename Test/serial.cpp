@@ -85,7 +85,10 @@ int Serial::ReadData(char *buffer, unsigned int nbChar, OVERLAPPED osReader)
     unsigned int toRead;
 
     //Use the ClearCommError function to get status info on the Serial port
-    ClearCommError(this->serialArd, &this->errors, &this->status);
+    if(ClearCommError(this->serialArd, &this->errors, &this->status) ==0) {
+    	//Throw an exception for the error
+    	//
+    }
 
     //Check if there is something to read
     if(this->status.cbInQue>0)
@@ -111,6 +114,21 @@ int Serial::ReadData(char *buffer, unsigned int nbChar, OVERLAPPED osReader)
     return -1;
 }
 
+//Create input_buffer variable in class to hold temporary extras from after
+//newline delimiter. Return/update buffer with first string until \n. Concat onto
+//previous buffer to parse together single string to return.
+int Serial::ReadLine(char *buffer, unsigned int nbChar, OVERLAPPED osReader)
+{
+	char msg[100];
+	//Read in data until new line is reached. Save remaining data in buffer.
+	if(ReadData(buffer,nbChar, osReader) >0){
+		int i=0;
+		while(buffer[i] != '\n'){
+			msg[i] = buffer[i++];
+		}
+	}
+
+}
 
 bool Serial::WriteData(char *buffer, unsigned int nbChar, OVERLAPPED osReader)
 {

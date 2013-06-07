@@ -51,12 +51,12 @@ BOOL initComm(Serial* SP, OVERLAPPED osReader, char* msg) {
 	if(read(SP,osReader,msg)){
 		if(msg[0]=='H'){
 			if(write(SP, osReader,msg)){
-				std::cout<< "Connected to the Arduino." << std::endl;
+				std::cout<< "Connected to the Arduino.\n";
 				return TRUE;
 			}
-			else std::cout << "Could not send ACK." << std::endl;
+			else std::cout << "Could not send ACK.\n";
 		}
-		else std::cout << "Did not receive proper msg." << std::endl;
+		else std::cout << "Did not receive proper msg.\n";
 	}
 	return FALSE;
 }
@@ -69,7 +69,7 @@ int main()
 	char msg[dataLength] = "";
 
 	if (SP->IsConnected())
-		printf("Com port connected\n");
+		std::cout <<"Com port connected\n";
 
 	osReader.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
 	if (osReader.hEvent == NULL) {
@@ -82,9 +82,10 @@ int main()
 		{
 			if(fWaitingOnRead) {
 				if(read(SP, osReader,msg)) {
-					for(int i=0; i<17; i++)
+					for(int i=0; i<strlen(msg); i++)
 						std::cout << msg[i];
 					std::cout << std::endl;
+
 					fWaitingOnRead = FALSE;
 				}
 			}

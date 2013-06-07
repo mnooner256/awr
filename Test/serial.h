@@ -28,6 +28,9 @@ class Serial
         //bytes available. The function return -1 when nothing could
         //be read, the number of bytes actually read.
         int ReadData(char *buffer, unsigned int nbChar, OVERLAPPED osReader);
+        //Use ReadData to read from buffer until detecting \n, but not throwing
+        //anything away.
+        int ReadLine(char *buffer, unsigned int nbChar, OVERLAPPED osReader);
         //Writes data from a buffer through the Serial connection
         //return true on success.
         bool WriteData(char *buffer, unsigned int nbChar, OVERLAPPED osReader);
