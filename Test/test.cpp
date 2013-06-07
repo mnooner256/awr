@@ -17,7 +17,7 @@ BOOL write(Serial* SP, OVERLAPPED osReader, char* msg)
 	BOOL writeResult = FALSE;
 
 	if(strlen(msg) < 1){
-		std::cout <<"What would you like to send? ";
+		std::cout <<"What is your command? ";
 		scanf(send);
 		writeResult = SP->WriteData(send,strlen(send),osReader);
 	}
@@ -82,7 +82,9 @@ int main()
 		{
 			if(fWaitingOnRead) {
 				if(read(SP, osReader,msg)) {
-					std::cout << msg;
+					for(int i=0; i<17; i++)
+						std::cout << msg[i];
+					std::cout << std::endl;
 					fWaitingOnRead = FALSE;
 				}
 			}
