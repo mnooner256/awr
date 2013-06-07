@@ -26,10 +26,11 @@ BOOL write(Serial* SP, OVERLAPPED osReader, char* msg)
 	}
 	if(!writeResult) {
 		std::cout <<"Could not write to serial port.\n";
-		return writeResult;
-	}else {
-		return writeResult = TRUE;
 	}
+	else {
+		writeResult = TRUE;
+	}
+	return writeResult;
 }
 
 BOOL read(Serial* SP, OVERLAPPED osReader, char* msg)
@@ -47,13 +48,13 @@ BOOL read(Serial* SP, OVERLAPPED osReader, char* msg)
 }
 
 BOOL initComm(Serial* SP, OVERLAPPED osReader, char* msg) {
-
 	if(read(SP,osReader,msg)){
 		if(msg[0]=='H'){
-			if(write(SP, osReader,"H\n")){
+			if(write(SP, osReader,msg)){
 				std::cout<< "Connected to the Arduino." << std::endl;
 				return TRUE;
 			}
+			else std::cout << "Could not send ACK." << std::endl;
 		}
 		else std::cout << "Did not receive proper msg." << std::endl;
 	}
@@ -68,7 +69,7 @@ int main()
 	char msg[dataLength] = "";
 
 	if (SP->IsConnected())
-		printf("We're connected\n");
+		printf("Com port connected\n");
 
 	osReader.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
 	if (osReader.hEvent == NULL) {
