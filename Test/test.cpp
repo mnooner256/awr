@@ -33,30 +33,31 @@ BOOL write(Serial* SP, OVERLAPPED osReader, char* msg)
 	return writeResult;
 }
 
-BOOL read(Serial* SP, OVERLAPPED osReader, char* msg)
+BOOL read(Serial* SP, OVERLAPPED osReader, char* msg, int toRead)
 {
-	int readResult = -1;
+	int readResult = 0;
 	BOOL finished = FALSE;
 
-	while(readResult == -1){
-		readResult = SP->ReadData(msg,dataLength, osReader);
-	}
+	//blocking function call - should read until all is read off of the serial buffer
+	readResult = SP->ReadLine(msg,dataLength, osReader, toRead);
+
 	if(readResult >=0){
 		finished = TRUE;
 	}
 	return finished;
 }
 
-BOOL initComm(Serial* SP, OVERLAPPED osReader, char* msg) {
-	if(read(SP,osReader,msg)){
-		if(msg[0]=='H'){
-			if(write(SP, osReader,msg)){
+BOOL initComm(Serial* SP, OVERLAPPED osReader) {
+	char temp[100] = "";
+	if(read(SP,osReader,temp, 1)){
+		if(temp[0]=='H'){
+			if(write(SP, osReader,temp)){
 				std::cout<< "Connected to the Arduino.\n";
 				return TRUE;
 			}
 			else std::cout << "Could not send ACK.\n";
 		}
-		else std::cout << "Did not receive proper msg.\n";
+		else std::cout << "Did not receive proper msg: " << temp <<std::endl;
 	}
 	return FALSE;
 }
@@ -76,12 +77,12 @@ int main()
 		return 1; 	// Error creating event; abort.
 	}
 
-	if(initComm(SP, osReader, msg)){
+	if(initComm(SP, osReader)){
 
 		while(SP->IsConnected())
 		{
 			if(fWaitingOnRead) {
-				if(read(SP, osReader,msg)) {
+				if(read(SP, osReader,msg, dataLength)) {
 					for(int i=0; i<strlen(msg); i++)
 						std::cout << msg[i];
 					std::cout << std::endl;

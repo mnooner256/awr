@@ -14,6 +14,7 @@ Serial::Serial(char *portName)
     //We're not yet connected
     this->connected = false;
     this->errors = NULL;
+    this->buf[0] = NULL;
 
     //Try to connect to the given port through CreateFile
     this->serialArd = CreateFile(portName,
@@ -77,12 +78,11 @@ Serial::~Serial()
     }
 }
 
-int Serial::ReadData(char *buffer, unsigned int nbChar, OVERLAPPED osReader)
+int Serial::ReadData(char *buffer, unsigned int nbChar, OVERLAPPED osReader, int toRead)
 {
     //Number of bytes we'll have read
     DWORD bytesRead;
     //Number of bytes we'll really ask to read
-    unsigned int toRead;
 
     //Use the ClearCommError function to get status info on the Serial port
     if(ClearCommError(this->serialArd, &this->errors, &this->status) ==0) {
@@ -110,24 +110,49 @@ int Serial::ReadData(char *buffer, unsigned int nbChar, OVERLAPPED osReader)
 
     }
 
-    //If nothing has been read, or that an error was detected return -1
+    //If nothing has been read, or an error was detected return -1
     return -1;
 }
 
-//Create input_buffer variable in class to hold temporary extras from after
-//newline delimiter. Return/update buffer with first string until \n. Concat onto
-//previous buffer to parse together single string to return.
-int Serial::ReadLine(char *buffer, unsigned int nbChar, OVERLAPPED osReader)
+int Serial::ReadLine(char *buffer, unsigned int nbChar, OVERLAPPED osReader, int toRead)
 {
-	char msg[100];
-	//Read in data until new line is reached. Save remaining data in buffer.
-	if(ReadData(buffer,nbChar, osReader) >0){
-		int i=0;
-		while(buffer[i] != '\n'){
-			msg[i] = buffer[i++];
+	int offset=0;
+	int readStat=-1;
+	int i=0;
+	offset = strlen(buf);
+
+	//Copy any data from the last read into the current buffer
+	if(offset>1){
+		for(i = 0; i<offset; i++){
+			buffer[i]=buf[i];
 		}
 	}
 
+	while(strlen(buffer)<toRead) {
+		//Read in new data and store in new array until '\n' is reached.
+		readStat = ReadData(buf,nbChar, osReader, toRead);
+		if( readStat>0 ){
+
+			i=0;
+			while( i<readStat && buf[i] != '\n'){
+				buffer[i+offset] = buf[i++];
+			}
+			buffer[i+offset+1]=NULL;
+
+			//Save remaining data in class buf for later
+			memmove (buf,buf+i,readStat-i);
+			//clear the rest of the class buffer
+			memset (buf+(readStat-i),'\0',readStat);
+			offset= strlen(buffer);
+
+			std::cout << "buf: " << buf << std::endl;
+			std::cout << "buffer: " << buffer << std::endl;
+
+		}
+	}
+
+    //If nothing has been read or an error was detected, return -1
+	return readStat;
 }
 
 bool Serial::WriteData(char *buffer, unsigned int nbChar, OVERLAPPED osReader)
