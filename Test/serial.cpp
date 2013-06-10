@@ -121,7 +121,7 @@ int Serial::ReadLine(char *buffer, unsigned int nbChar, OVERLAPPED osReader, int
 	int i=0;
 	offset = strlen(buf);
 
-	//Copy any data from the last read into the current buffer
+	//Copy any leftover data from the last read into the current buffer
 	if(offset>1){
 		for(i = 0; i<offset; i++){
 			buffer[i]=buf[i];
@@ -144,10 +144,6 @@ int Serial::ReadLine(char *buffer, unsigned int nbChar, OVERLAPPED osReader, int
 			//clear the rest of the class buffer
 			memset (buf+(readStat-i),'\0',readStat);
 			offset= strlen(buffer);
-
-			std::cout << "buf: " << buf << std::endl;
-			std::cout << "buffer: " << buffer << std::endl;
-
 		}
 	}
 
