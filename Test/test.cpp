@@ -82,7 +82,7 @@ int main()
 		while(SP->IsConnected())
 		{
 			if(fWaitingOnRead) {
-				if(read(SP, osReader,msg, dataLength)) {
+				if(read(SP, osReader,msg, 14)) {
 					for(int i=0; i<strlen(msg); i++)
 						std::cout << msg[i];
 					std::cout << std::endl;

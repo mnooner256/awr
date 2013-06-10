@@ -53,7 +53,7 @@ void scan_rfid() {
   if (id20.available() > 0) {
     bytes = id20.readBytesUntil(13, tag, sizeof(tag));
     
-    Serial.print("RFID:");
+    Serial.print("R:");
     for ( int i = 1; i < bytes; i++) {
       Serial.print(tag[i]);
     }
