@@ -15,7 +15,7 @@ using namespace std;
 
 class Node
 {
-private:
+public:
     // current position
     int xPos;
     int yPos;
@@ -25,7 +25,13 @@ private:
     int priority;
     //rfid code
     int rfid;
-public:
+
+    //Default constructor
+    Node()
+	{
+    	xPos = yPos = level = priority = rfid = -1;
+	}
+
     Node(int xp, int yp, int d, int p)
     {
     	xPos=xp;
@@ -35,7 +41,8 @@ public:
     	rfid = -1;
     }
 
-    Node( Node& n) {
+    Node(Node& n)
+    {
     	xPos = n.xPos;
     	yPos = n.yPos;
     	level = n.level;
@@ -63,6 +70,11 @@ public:
     	return priority;
     }
 
+    int getRfid() const
+    {
+    	return rfid;
+    }
+
     void updatePriority(const int & xDest, const int & yDest)
     {
         priority = level + estimate(xDest, yDest) * 10;
@@ -72,6 +84,7 @@ public:
     {
         level+=(dir==8?(i%2==0?10:14):10);
     }
+
     // Estimation function for the remaining distance to the goal.
     int estimate(const int & xDest, const int & yDest) const
     {

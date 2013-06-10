@@ -11,7 +11,6 @@
 #include <math.h>
 #include <ctime>
 #include "AStar.cpp"
-#include "Node.h"
 
 using namespace std;
 
@@ -23,12 +22,12 @@ string path;
 
 int main()
 {
-	int x_start, y_start, x_end, y_end, x_size, y_size, total_size;
+	int x_start, y_start, x_end, y_end, total_size;
 
 	total_size = getSize();
 	map = getMap(total_size);
 
-	x_start = y_start = 1;
+	x_start = y_start = 0;
 	x_end = y_end = 3;
 
 	//magically read position from RFID sensor
