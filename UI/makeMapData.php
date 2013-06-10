@@ -17,18 +17,18 @@ $ma = $_REQUEST['myarray'];
       fwrite($fh, $m);
       $values = explode(";",$ma[$i][$j]);
 
-      if($values[0] < 0){
-
+      if( ($values[0]==2)||($values[0]==3) ){
         fwrite($fh, $values[0].";".$values[1].";".$values[2]);
       }
       else{
-        if($values[0] == 0){
-          fwrite($fh, "0");
+        if( $values[0]==16 ){
+          fwrite($fh, $values[0].";".$values[1]);
         }
         else{
           fwrite($fh, $values[0]);
         }
       }
+
     fwrite($fh, ".");
     }
   }
