@@ -140,9 +140,9 @@ int Serial::ReadLine(char *buffer, unsigned int nbChar, OVERLAPPED osReader, int
 				buffer[i+offset] = buf[i++];
 			}
 			//Add \0 to end to form Cstring
-			buffer[i+offset+1]=NULL;
+			buffer[i+offset]=NULL;
 
-//			//for debugging purposes
+			//for debugging purposes
 //			std::cout << "newly read\n";
 //			std::cout << "buf: " << buf << std::endl;
 //			std::cout << "buffer: " << buffer << std::endl;
@@ -153,7 +153,7 @@ int Serial::ReadLine(char *buffer, unsigned int nbChar, OVERLAPPED osReader, int
 			memset (buf+(readStat-i),'\0',readStat);
 			offset= strlen(buffer);
 
-			//for debugging purposes
+//			for debugging purposes
 //			std::cout << "all done\n";
 //			std::cout << "buf: " << buf << std::endl;
 //			std::cout << "buffer: " << buffer << std::endl;

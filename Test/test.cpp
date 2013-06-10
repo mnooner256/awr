@@ -13,23 +13,13 @@ const int dataLength = 256;
 
 BOOL write(Serial* SP, OVERLAPPED osReader, char* msg)
 {
-	char send[dataLength] = "";
 	BOOL writeResult = FALSE;
 
-	if(strlen(msg) < 1){
-		std::cout <<"What is your command? ";
-		scanf(send);
-		writeResult = SP->WriteData(send,strlen(send),osReader);
-	}
-	else {
-		writeResult = SP->WriteData(msg,strlen(msg),osReader);
-	}
-	if(!writeResult) {
+	writeResult = SP->WriteData(msg,strlen(msg),osReader);
+
+	if(!writeResult)
 		std::cout <<"Could not write to serial port.\n";
-	}
-	else {
-		writeResult = TRUE;
-	}
+
 	return writeResult;
 }
 
@@ -83,15 +73,15 @@ int main()
 		{
 			if(fWaitingOnRead) {
 				if(read(SP, osReader,msg, 14)) {
-					for(int i=0; i<strlen(msg); i++)
-						std::cout << msg[i];
-					std::cout << std::endl;
 
+					std::cout << msg << std::endl;
 					fWaitingOnRead = FALSE;
 				}
 			}
 			if(!fWaitingOnRead) {
-				if(write(SP, osReader, ""))
+				std::cout <<"What is your command? ";
+				std::cin >> msg;
+				if(write(SP, osReader, msg))
 					fWaitingOnRead = TRUE;
 			}
 		}
