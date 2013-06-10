@@ -180,13 +180,21 @@ function change(x, y){
   var value2=null;
   var value3=null;
   if(loadedFunctionId==2 || loadedFunctionId==3){
-     value2 = prompt("Enter the door RFID Value. Old value: "+initVal);  
-     value3 = prompt("Enter the room number. Old value: "+initVal);
+     if(initVal == 1){
+       initVal = "0;0;0";
+     }
+     var holdInit = initVal.slice(initVal.indexOf(";")+1, initVal.length);
+
+     value2 = prompt("Enter the door RFID Value. Old value: "+holdInit.slice(0, holdInit.indexOf(";")));  
+     value3 = prompt("Enter the room number. Old value: "+holdInit.slice(holdInit.indexOf(";")+1, holdInit.length));
      value = loadedFunctionId+";"+value2+";"+value3;
   }
   else{
     if(loadedFunctionId==16){
-       value2 = prompt("Enter the RFID value. Old value: "+initVal);
+     if(initVal == 1){
+       initVal = "0;0";
+     }
+       value2 = prompt("Enter the RFID value. Old value: "+initVal.slice(initVal.indexOf(";")+1, initVal.length));
        value = 16+";"+value2;
     }
     else{
