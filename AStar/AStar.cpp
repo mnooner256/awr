@@ -8,11 +8,12 @@
 #include <queue>
 #include <vector>
 #include "Node.h"
-
+#include "Astar.h"
 using namespace std;
 
 //Directions
 const int DIR = 8;
+//Both arrays start in "East" direction
 int dx[DIR]={1, 1, 0, -1, -1, -1, 0, 1};
 int dy[DIR]={0, 1, 1, 1, 0, -1, -1, -1};
 
@@ -151,7 +152,7 @@ string pathFind(int& xStart, int& yStart, int& xFinish, int& yFinish)
             else if(open_nodes_map[(xdx / 8) + ydy] != 1 && closed_nodes_map[(xdx / 8) + ydy] != 1)
             {
                 // generate a child node
-                child=new Node(xdx, ydy, node->getLevel(), node->getPriority());
+                child = new Node(xdx, ydy, node->getLevel(), node->getPriority());
                 child->nextLevel(i, DIR);
                 child->updatePriority(xFinish, yFinish);
 

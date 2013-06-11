@@ -10,7 +10,8 @@
 #include <string>
 #include <math.h>
 #include <ctime>
-#include "AStar.cpp"
+#include "Node.h"
+#include "Astar.h"
 
 using namespace std;
 
