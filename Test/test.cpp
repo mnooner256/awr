@@ -56,7 +56,7 @@ int main()
 {
 	BOOL fWaitingOnRead = TRUE;
     OVERLAPPED osReader = {0};
-	Serial* SP = new Serial("COM4");
+	Serial* SP = new Serial("COM5");
 	char msg[dataLength] = "";
 
 	if (SP->IsConnected())
