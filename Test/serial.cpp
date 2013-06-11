@@ -119,44 +119,28 @@ int Serial::ReadLine(char *buffer, unsigned int nbChar, OVERLAPPED osReader, int
 {
 	int offset= 0;
 	int readStat=-1;
-	int i=0;
-
-	//Copy any leftover data from the last read into the current buffer
-//	if(offset>1){
-//		for(i = 0; i<offset; i++){
-//			buffer[i]=buf[i];
-//		}
-//	}
 
 	//Read in and concatenate new data on buffer until expected size is reached
-	while(strlen(buffer)<toRead) {
+	while(strlen(buffer)<toRead)  {
 
 		//Read in new data
 		readStat = ReadData(buf,nbChar, osReader);
 		if( readStat>0 ){
 			//Store new data into buffer until \n is reached
-			i=0;
+			int i=0;
 			while( i<readStat && buf[i] != '\n'){
 				buffer[i+offset] = buf[i++];
 			}
-			//Add \0 to end to form Cstring
+			//Concatenate NULL on end to form Cstring
 			buffer[i+offset]=NULL;
-
-			//for debugging purposes
-//			std::cout << "newly read\n";
-//			std::cout << "buf: " << buf << std::endl;
-//			std::cout << "buffer: " << buffer << std::endl;
 
 			//Save remaining data in class buf for later
 			memmove (buf,buf+i,readStat-i);
 			//clear the rest of the class buffer
 			memset (buf+(readStat-i),'\0',readStat);
-			offset= strlen(buffer);
 
-//			for debugging purposes
-//			std::cout << "all done\n";
-//			std::cout << "buf: " << buf << std::endl;
-//			std::cout << "buffer: " << buffer << std::endl;
+			//update offset to keep data in buffer to be added to until expected size is reached
+			offset= strlen(buffer);
 		}
 	}
 
