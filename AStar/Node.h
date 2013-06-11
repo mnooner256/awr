@@ -26,6 +26,10 @@ public:
     //rfid code
     int rfid;
 
+    int getSize();
+    Node* getMap(int);
+    std::string pathFind(int&, int&, int& , int& );
+
     //Default constructor
     Node()
 	{
@@ -98,6 +102,7 @@ public:
 
         return d;
     }
+
 };
 
 #endif

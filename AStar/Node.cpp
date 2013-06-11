@@ -77,7 +77,7 @@ string pathFind(int& xStart, int& yStart, int& xFinish, int& yFinish)
     f >> m >> n;
     int total_size = m * n;
     int* closed_nodes_map = new int[total_size]; 	// map of closed (tried-out) nodes
-    int* open_nodes_map = new int[total_size]; 	// map of open (not-yet-tried) nodes
+    int* open_nodes_map = new int[total_size];  	// map of open (not-yet-tried) nodes
     vector<vector<int>> dir_map; 					// map of directions
     char buffer[200];
 
