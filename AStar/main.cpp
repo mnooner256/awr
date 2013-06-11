@@ -19,7 +19,7 @@ Node* map;
 string path;
 
 // A-star algorithm.
-// The route returned is a string of direction digits.
+// The route returned is a string of directional digits.
 
 int main()
 {

@@ -24,7 +24,7 @@ int getSize()
 
 	f.open("c:/Users/fjr_1983/Desktop/map_layout.txt", ios::in);
 
-	//reads sizes from first line in file
+	//reads sizes from first line in map file
 	f >> x_size >> y_size;
 
 	tot_size = x_size * y_size;

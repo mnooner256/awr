@@ -5,7 +5,6 @@ Created by: Francisco Ruiz
 
 Needs to "hard-code" map data - only things that change should be start and end
 ***************************************************************/
-#pragma once
 #ifndef NODE_H
 #define NODE_H
 
