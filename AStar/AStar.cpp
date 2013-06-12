@@ -23,7 +23,7 @@ int getSize()
 	fstream f;
 	int x_size, y_size, tot_size;
 
-	f.open("c:/Users/Francisco/Desktop/map_layout.txt", ios::in);
+	f.open("c:/Users/fjr_1983/Desktop/map_layout.txt", ios::in);
 
 	//reads sizes from first line in map file
 	f >> x_size >> y_size;
@@ -42,7 +42,7 @@ Node* getMap(int t_s)
 	Node* m;
 	char temp;
 
-	f.open("c:/Users/Francisco/Desktop/map_layout.txt", ios::in);
+	f.open("c:/Users/fjr_1983/Desktop/map_layout.txt", ios::in);
 
 	m = new Node[t_s];
 
@@ -85,7 +85,7 @@ string pathFind(int& xStart, int& yStart, int& xFinish, int& yFinish, int t_s)
 	int* dir_map = new int[t_s];			//map of directions
     char buffer[200];
 
-	f.open("c:/Users/Francisco/Desktop/map_layout.txt", ios::in);
+	f.open("c:/Users/fjr_1983/Desktop/map_layout.txt", ios::in);
 
 	f >> m >> n;
 
@@ -100,7 +100,7 @@ string pathFind(int& xStart, int& yStart, int& xFinish, int& yFinish, int t_s)
     node = new Node(xStart, yStart, 0, 0);
     node->updatePriority(xFinish, yFinish);
     open_queue.push(node);
-    open_nodes_map[(xStart * 8) + yStart] = node->getPriority(); // mark it on the open nodes map
+    open_nodes_map[(xStart * m) + yStart] = node->getPriority(); // mark it on the open nodes map
 
     // A* search
     while(!open_queue.empty())
@@ -115,8 +115,8 @@ string pathFind(int& xStart, int& yStart, int& xFinish, int& yFinish, int t_s)
         y_pos = node->getyPos();
 
         // mark it on the closed nodes map
-        closed_nodes_map[(x_pos * 8) + y_pos] = 1;
-		
+        closed_nodes_map[(x_pos * m) + y_pos + 1] = 1;
+
         // quit searching when the goal state is reached
         if(x_pos == xFinish && y_pos == yFinish)
         {
@@ -126,14 +126,14 @@ string pathFind(int& xStart, int& yStart, int& xFinish, int& yFinish, int t_s)
 
             while(!(x_pos == xStart && y_pos == yStart))
             {
-                temp = dir_map[(x_pos * 8) + y_pos];
+                temp = dir_map[(x_pos * m) + y_pos + 1];
                 sprintf_s(buffer, "%i,%s", buffer, temp % DIR);
                 x_pos += dx[temp];
                 y_pos += dy[temp];				
             }
 
             path = buffer;
-			
+
             // garbage collection
 
             while(!open_queue.empty())
@@ -155,7 +155,7 @@ string pathFind(int& xStart, int& yStart, int& xFinish, int& yFinish, int t_s)
             	continue;
 
             //Checks to see that node has not been run before
-            else if(open_nodes_map[(xdx * 8) + ydy] != 1 && closed_nodes_map[(xdx * 8) + ydy] != 1)
+            else if(open_nodes_map[(xdx * m) + ydy + 1] != 0 && closed_nodes_map[(xdx * m) + ydy + 1] != 1)
             {
                 // generate a child node
                 child = new Node(xdx, ydy, node->getLevel(), node->getPriority());				
@@ -163,22 +163,22 @@ string pathFind(int& xStart, int& yStart, int& xFinish, int& yFinish, int t_s)
                 child->updatePriority(xFinish, yFinish);
 
                 // if it is not in the open list then add into that
-                if(open_nodes_map[(xdx * 8) + ydy] == 0)
+                if(open_nodes_map[(xdx * m) + ydy + 1] == 0)
                 {
-                    open_nodes_map[(xdx * 8) + ydy] = child->getPriority();
+                    open_nodes_map[(xdx * m) + ydy + 1] = child->getPriority();
                     open_queue.push(child);
 
                     // mark its parent node direction
-                    dir_map[(xdx * 8) + ydy] = i % DIR;
+                    dir_map[(xdx * 8) + ydy] = i;
                 }
 
-                else if(open_nodes_map[(xdx * 8) + ydy] > child->getPriority())
+                else if(open_nodes_map[(xdx * m) + ydy + 1] > child->getPriority())
                 {
                     // update the priority info					
-                    open_nodes_map[(xdx * 8) + ydy] = child->getPriority();
-					
+                    open_nodes_map[(xdx * m) + ydy + 1] = child->getPriority();
+
 					// update the parent direction info
-                    dir_map[(xdx * 8) + ydy] = i % DIR;
+                    dir_map[(xdx * m) + ydy + 1] = i;
 
                     // replace the node
                     // by emptying one list to the other one
@@ -186,6 +186,7 @@ string pathFind(int& xStart, int& yStart, int& xFinish, int& yFinish, int t_s)
                     // and the new node will be pushed in instead
                     while(open_queue.top()->getxPos() != xdx && open_queue.top()->getyPos() != ydy)
                     {
+						//Vector pointer error here during runtime
                         closed_queue.push(open_queue.top());
                         open_queue.pop();
                     }
