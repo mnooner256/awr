@@ -34,8 +34,7 @@ int main()
 
 	//magically read position from RFID sensor
 
-	path = pathFind(x_start, y_start, x_end, y_end, total_size);
-
+	path = pathFind(map, x_start, y_start, x_end, y_end, total_size);
 
 	cout << path;
 

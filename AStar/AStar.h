@@ -12,6 +12,6 @@ extern int getSize();
 
 extern Node* getMap(int t_s);
 
-extern string pathFind(int& xStart, int& yStart, int& xFinish, int& yFinish, int t_s);
+extern string pathFind(Node*, int& xStart, int& yStart, int& xFinish, int& yFinish, int t_s);
 
 #endif

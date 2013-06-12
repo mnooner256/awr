@@ -80,10 +80,8 @@ Node* getMap(int t_s)
 
 }
 
-string pathFind(int& xStart, int& yStart, int& xFinish, int& yFinish, int t_s)
+string pathFind(Node* map, int& xStart, int& yStart, int& xFinish, int& yFinish, int t_s)
 {
-
-
 	queue<Node*> open_queue; 	// list of open (not-yet-tried) nodes
     queue<Node*> closed_queue; 		// vector of tried nodes
     fstream f;
@@ -170,23 +168,22 @@ string pathFind(int& xStart, int& yStart, int& xFinish, int& yFinish, int t_s)
             xdx = x_pos + dx[i];
             ydy = y_pos + dy[i];
 
-            cout << closed_nodes_map[(xdx * m) + ydy];
+            //for debugging purposes
+            cout << "position: " << xdx << " " << ydy << " priority: " << open_nodes_map[(xdx * m) + ydy] << endl;
 
-            //Short-circuit at the edges of the map
-            if (xdx > n-1 || xdx < 0 || ydy < 0 || ydy > m-1)
+            //Short-circuit at the edges of the map or if it is a wall
+            if (xdx > n-1 || xdx < 0 || ydy < 0 || ydy > m-1 || map[(xdx * m) + ydy].rfid == "w")
             	continue;
 
-
-        //Check to make sure it's not a wall
-
             //Checks to see that node has not been run before
-            else if( closed_nodes_map[(xdx * m) + ydy] != 1)
+            else if( closed_nodes_map[(xdx * m) + ydy] != 1 )
             {
                 // generate a child node
-                child = new Node(xdx, ydy, node->getLevel(), node->getPriority());				
+                child = new Node(xdx, ydy, node->getLevel(), node->getPriority());
+
                 child->nextLevel(i);
                 child->updatePriority(xFinish, yFinish);
-                cout << "output 1\n";
+                cout << "output 1" << endl;
 
                 // if it is not in the open list then add into that
                 if(open_nodes_map[(xdx * m) + ydy] == 0)
@@ -194,17 +191,17 @@ string pathFind(int& xStart, int& yStart, int& xFinish, int& yFinish, int t_s)
                     open_nodes_map[(xdx * m) + ydy] = child->getPriority();
                     open_queue.push(child);
 
-                    cout << "output 2\n" << endl;
+                    cout << "output 2" << endl;
 
                     // mark its parent node direction
                     dir_map[(xdx * 8) + ydy] = i;
 
                 }
 
-                else if(! (open_nodes_map[(xdx * m) + ydy] < child->getPriority()) )
+                else if(open_nodes_map[(xdx * m) + ydy] >=child->getPriority())
                 {
 
-                	cout << "output    3   \n" << endl;
+                	cout << "output    3   " << endl;
 
                     // update the priority info					
                     //open_nodes_map[(xdx * m) + ydy] = child->getPriority();
@@ -234,8 +231,8 @@ string pathFind(int& xStart, int& yStart, int& xFinish, int& yFinish, int t_s)
         delete node; // garbage collection
     }
 
+	cout<<"no path made by end" << endl;
 	f.close();
 
-	cout<<"no path made by end\n";
     return ""; // no route found	
 }
