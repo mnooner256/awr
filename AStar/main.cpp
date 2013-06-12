@@ -28,11 +28,14 @@ int main()
 	total_size = getSize();
 	map = getMap(total_size);
 
+
 	x_start = y_start = 1;
 	x_end = y_end = 3;
 
 	//magically read position from RFID sensor
+
 	path = pathFind(x_start, y_start, x_end, y_end, total_size);
+
 
 	cout << path;
 
