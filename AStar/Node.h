@@ -23,12 +23,13 @@ public:
     // priority = level + remaining distance estimate (smaller is higher)
     int priority;
     //rfid code
-    int rfid;
+    string rfid;
 
     //Default constructor
     Node()
 	{
-    	xPos = yPos = level = priority = rfid = -1;
+    	xPos = yPos = level = priority = -1;
+		rfid = "EMPTY";
 	}
 
     Node(int xp, int yp, int d, int p)
@@ -37,7 +38,7 @@ public:
     	yPos=yp;
     	level=d;
     	priority=p;
-    	rfid = -1;
+    	rfid = "EMPTY";
     }
 
     Node(Node& n)
@@ -69,7 +70,7 @@ public:
     	return priority;
     }
 
-    int getRfid() const
+    string getRfid() const
     {
     	return rfid;
     }
@@ -79,9 +80,11 @@ public:
         priority = level + estimate(xDest, yDest) * 10;
     }
 
-    void nextLevel(int& i, int dir) // i: direction
+    void nextLevel(int& i) // i: direction
     {
-        level+=(dir==8?(i%2==0?10:14):10);
+		//If direction is cardinal, level is 10.
+		//Otherwise, level is 14 (longer for diagonal).
+        level += (i %2 == 0?10:14);
     }
 
     // Estimation function for the remaining distance to the goal.
