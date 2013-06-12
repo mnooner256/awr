@@ -36,7 +36,10 @@ int main()
 
 	cout << path;
 
-	//magically convey directions to robot
+	//findStart(char[])
+	//sendPath(string)
+	//--->verify RFID
+	//------->error checking
 
-    return(0);
+    return 0;
 }
