@@ -18,6 +18,62 @@ const int DIR = 8;
 int dx[DIR]={1, 1, 0, -1, -1, -1, 0, 1};
 int dy[DIR]={0, 1, 1, 1, 0, -1, -1, -1};
 
+//Function to read rfid tag and find current location
+int getCurrent(char rfid[], Node* map, int total_size)
+{
+  string tag;
+
+  tag = rfid;
+
+  //Loop through the map and find the rfid tag
+  for(int i=0; i<total_size; i++)
+  {
+    if(map[i].getRfid() == tag)
+    {
+      return i;
+    }
+  }
+
+  //If not found, return invalid entry
+  return -1;
+}
+
+void sendPath(string path, string rfid_path)
+{
+  string rfid;
+  int size = path.size();
+  char* send_path;
+
+  send_path = new char[size];
+
+  //transfers string to character array
+  for(int i=0; i < size; i++)
+  {
+    send_path[i] = path[i];
+  }
+
+  //infinite loop (until broken)
+  while(true)
+  {
+    for(int j=0; j<size; j++)
+    {
+      //send path[i] to robot
+
+      //receive rfid from robot
+
+      if(rfid_path == rfid)
+      {
+        continue;
+      }
+      //breaks out of loop for restart if rfid value is unexpected
+      else
+      {
+        break;
+      }
+    }
+  }
+}
+
 int getSize()
 {
 	fstream f;
@@ -68,7 +124,7 @@ Node* getMap(int t_s)
 			m[i].priority = 1000000;
 		}
 
-		cout << m[i].xPos << m[i].yPos << endl << m[i].rfid << endl;
+		//cout << m[i].xPos << m[i].yPos << endl << m[i].rfid << endl;
 	}
 
 
@@ -135,7 +191,6 @@ string pathFind(Node* map, int& xStart, int& yStart, int& xFinish, int& yFinish,
         // quit searching when the goal state is reached
         if(x_pos == xFinish && y_pos == yFinish)
         {
-
             // generate the path from finish to start
             // by following the directions
             string path="";
@@ -151,7 +206,6 @@ string pathFind(Node* map, int& xStart, int& yStart, int& xFinish, int& yFinish,
             path = buffer;
 
             // garbage collection
-
             while(!open_queue.empty())
             {
             	open_queue.pop();
@@ -161,77 +215,107 @@ string pathFind(Node* map, int& xStart, int& yStart, int& xFinish, int& yFinish,
             return path;
         }
 
+   //for debugging
+        cout << "root_x: " << x_pos << " root_y: " << y_pos << endl;
+
         // generate moves (child nodes) in all possible directions
         for(int i=0; i < DIR; i++)
         {
-
             xdx = x_pos + dx[i];
             ydy = y_pos + dy[i];
 
-            //for debugging purposes
-            cout << "position: " << xdx << " " << ydy << " priority: " << open_nodes_map[(xdx * m) + ydy] << endl;
-
             //Short-circuit at the edges of the map or if it is a wall
-            if (xdx > n-1 || xdx < 0 || ydy < 0 || ydy > m-1 || map[(xdx * m) + ydy].rfid == "w")
+            if (xdx > n-1 || xdx < 0 || ydy < 0 || ydy > m-1 )
             	continue;
 
+      //for debugging purposes
+            cout << "position: " << xdx << " " << ydy << " -- priority: " << open_nodes_map[(xdx * m) + ydy] << endl;
+
             //Checks to see that node has not been run before
-            else if( closed_nodes_map[(xdx * m) + ydy] != 1 )
+            if( closed_nodes_map[(xdx * m) + ydy] != 1 )
             {
                 // generate a child node
-                child = new Node(xdx, ydy, node->getLevel(), node->getPriority());
-
+                child = new Node(xdx, ydy, map[(xdx*m)+ydy].getLevel(), map[(xdx*m)+ydy].getPriority());
+                //check if child is a wall. If it is put into map and stuff.
+                if(child->getPriority() == 1000000){
+                	open_nodes_map[(xdx * m) + ydy] = 1000000;
+                	continue;
+                }
                 child->nextLevel(i);
                 child->updatePriority(xFinish, yFinish);
-                cout << "output 1" << endl;
 
+         //for debugging
+                cout << "new priority: " << child->priority << endl;
+
+                if(node->getPriority() == child->getPriority())
+				{
+					cout << "pushing child  " << endl;
+					open_queue.push(child);
+
+					// update the priority info
+					//open_nodes_map[(xdx * m) + ydy] = child->getPriority();
+
+					// update the parent direction info
+//					dir_map[(xdx * m) + ydy] = i;
+//
+//					// replace the node
+//					// by emptying one list to the other one
+//					// except the node to be replaced will be ignored
+//					// and the new node will be pushed in instead
+//					while(open_queue.front()->getxPos() != xdx && open_queue.front()->getyPos() != ydy)
+//					{
+//						cout << "i will never see the light" << endl;
+//						//Vector pointer error here during runtime
+//						closed_queue.push(open_queue.front());
+//						open_queue.pop();
+//					}
+
+					//open_queue.pop(); // remove the wanted node
+				}
                 // if it is not in the open list then add into that
                 if(open_nodes_map[(xdx * m) + ydy] == 0)
                 {
                     open_nodes_map[(xdx * m) + ydy] = child->getPriority();
-                    open_queue.push(child);
-
-                    cout << "output 2" << endl;
+//                    open_queue.push(child);
 
                     // mark its parent node direction
-                    dir_map[(xdx * 8) + ydy] = i;
-
-                }
-
-                else if(open_nodes_map[(xdx * m) + ydy] >=child->getPriority())
-                {
-
-                	cout << "output    3   " << endl;
-
-                    // update the priority info					
-                    //open_nodes_map[(xdx * m) + ydy] = child->getPriority();
-
-					// update the parent direction info
                     dir_map[(xdx * m) + ydy] = i;
 
-                    // replace the node
-                    // by emptying one list to the other one
-                    // except the node to be replaced will be ignored
-                    // and the new node will be pushed in instead
-                    while(open_queue.front()->getxPos() != xdx && open_queue.front()->getyPos() != ydy)
-                    {
-						//Vector pointer error here during runtime
-                        closed_queue.push(open_queue.front());
-                        open_queue.pop();
-                    }
+         //for debugging
+                    cout << "dir: " << dir_map[(xdx * m) + ydy] << endl;
+                }
 
-                    open_queue.pop(); // remove the wanted node
+
                 }
                 else
                 {
+                	cout << "deleting child" << endl;
                 	delete child; // garbage collection
                 }
             }
         }
         delete node; // garbage collection
     }
+    cout << "open: " << endl;
+    for (int i=0; i<m; i++) {
+    	for(int j=0; j<n; j++)
+    		cout << open_nodes_map[(i*m)+j] << " ";
+    	cout << endl;
+    }
 
-	cout<<"no path made by end" << endl;
+    cout << "closed: " << endl;
+    for (int i=0; i<m; i++) {
+    	for(int j=0; j<n; j++)
+    		cout << closed_nodes_map[(i*m)+j] << " ";
+    	cout << endl;
+    }
+
+    cout << "dir: " << endl;
+    for (int i=0; i<m; i++) {
+    	for(int j=0; j<n; j++)
+    		cout << dir_map[(i*m)+j] << " ";
+    	cout << endl;
+    }
 	f.close();
 
     return ""; // no route found	
