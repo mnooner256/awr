@@ -67,9 +67,7 @@ void sendPath(string path, string rfid_path)
       }
       //breaks out of loop for restart if rfid value is unexpected
       else
-      {
         break;
-      }
     }
   }
 }
