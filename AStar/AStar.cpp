@@ -7,6 +7,7 @@
 #include <fstream>
 #include <string>
 #include <queue>
+#include <stack>
 #include "Node.h"
 #include "Astar.h"
 
@@ -142,7 +143,7 @@ struct Less : public binary_function <Node,Node, bool>
 
 string pathFind(Node* map, int& xStart, int& yStart, int& xFinish, int& yFinish, int t_s)
 {
-    queue<Node*> possible_nodes; 							// possible alternative nodes
+    stack<Node*> possible_nodes; 							// possible alternative nodes
     int* visited_nodes = new int[t_s]; 						// map of closed (tried-out) nodes
 	int* dir_map = new int[t_s];							//map of directions
 	int* prior_map = new int[t_s];							//map of priorities
@@ -156,6 +157,7 @@ string pathFind(Node* map, int& xStart, int& yStart, int& xFinish, int& yFinish,
     	cout << "could not open file.\n";
 
 	f >> m >> n;	//pull off the dimensions of the map from file
+	f.close();		//close the file.
 
     // initialize the visited node array to zero
     for(int j=0; j < t_s; j++){
@@ -178,8 +180,13 @@ string pathFind(Node* map, int& xStart, int& yStart, int& xFinish, int& yFinish,
     {
 		// get the current node w/ the highest priority
 		// from the list of open nodes
-		node = possible_nodes.front();
+		node = possible_nodes.top();
 		possible_nodes.pop();
+
+		if(node->getxPos() == xFinish && node->getyPos() == yFinish){
+			cout << "path found" << endl;
+			//generatePath(), exit, and clean up all memory
+		}
 
 		priority_queue<Node*, vector<Node*>, Less> node_options;  // nodes to go to next, sorted be priority
 
@@ -233,7 +240,7 @@ string pathFind(Node* map, int& xStart, int& yStart, int& xFinish, int& yFinish,
 
 					//update the direction map/array
 					if(dir_map[(node_options.top()->yPos*n)+node_options.top()->xPos] == -1 ||
-							prior_map[(node_options.top()->yPos*n)+node_options.top()->xPos] > node_options.top()->getPriority()){
+							prior_map[(node_options.top()->yPos*n)+node_options.top()->xPos] <= node_options.top()->getPriority()){
 						dir_map[(node_options.top()->xPos*m)+node_options.top()->yPos] = node_options.top()->dir;
 						prior_map[(node_options.top()->xPos*m)+node_options.top()->yPos] = node_options.top()->getPriority();
 
@@ -243,7 +250,7 @@ string pathFind(Node* map, int& xStart, int& yStart, int& xFinish, int& yFinish,
 				}
 			}
 			//update the direction map/array
-			if(dir_map[(top->yPos*n)+top->xPos] == -1 || prior_map[(top->yPos*n)+top->xPos] > top->getPriority() ){
+			if(dir_map[(top->yPos*n)+top->xPos] == -1 || prior_map[(top->yPos*n)+top->xPos] <= top->getPriority() ){
 				dir_map[(top->yPos*n)+top->xPos] = top->dir;
 				prior_map[(top->yPos*n)+top->xPos] = top->getPriority();
 
@@ -262,7 +269,7 @@ string pathFind(Node* map, int& xStart, int& yStart, int& xFinish, int& yFinish,
 	  delete node; // garbage collection
     }
 
-  //for debugging
+ //for debugging
     cout << "visited: " << endl;
     for (int i=0; i<m; i++) {
     	for(int j=0; j<n; j++)
@@ -275,7 +282,6 @@ string pathFind(Node* map, int& xStart, int& yStart, int& xFinish, int& yFinish,
        		cout << prior_map[(i*n)+j] << "\t";
        	cout << endl;
     }
-
     cout << "directions: " << endl;
     for (int i=0; i<m; i++) {
     	for(int j=0; j<n; j++)
@@ -283,16 +289,15 @@ string pathFind(Node* map, int& xStart, int& yStart, int& xFinish, int& yFinish,
     	cout << endl;
     }
 
-	f.close();
 
 	//garbage collection
 	while(!possible_nodes.empty()){
-		Node* temp = new Node(possible_nodes.front());
+		Node* temp = new Node(possible_nodes.top());
 		possible_nodes.pop();
 		delete temp;
 	}
 
-	//
+	//start at the end point and follow the directions backwards
     return generatePath(dir_map, m, n);
 }
 
