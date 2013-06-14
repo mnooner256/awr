@@ -15,6 +15,7 @@ using namespace std;
 class Node
 {
 public:
+
     // current position
     int xPos;
     int yPos;
@@ -46,14 +47,14 @@ public:
 		dir=pardir;
     }
 
-    Node(Node& n)
+    Node(Node* n)
     {
-    	xPos = n.xPos;
-    	yPos = n.yPos;
-    	level = n.level;
-    	priority = n.priority;
-    	rfid = n.rfid;
-		dir=n.dir;
+    	xPos = n->xPos;
+    	yPos = n->yPos;
+    	level = n->level;
+    	priority = n->priority;
+    	rfid = n->rfid;
+		dir=n->dir;
     }
 
     int getxPos() const
@@ -83,9 +84,7 @@ public:
 
     void updatePriority(const int & xDest, const int & yDest)
     {
-    	cout << level << endl;
         priority = level + estimate(xDest, yDest) * 10;
-        cout << priority << endl;
     }
 
     void nextLevel(int& i) // i: direction

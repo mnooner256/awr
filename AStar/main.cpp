@@ -37,8 +37,6 @@ int main()
 
 	path = pathFind(map, x_start, y_start, x_end, y_end, total_size);
 
-	cout << path;
-
 	//findStart(char[])
 	//sendPath(string)
 	//--->verify RFID

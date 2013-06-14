@@ -18,6 +18,6 @@ extern Node* getMap(int t_s);
 
 extern string pathFind(Node*, int& xStart, int& yStart, int& xFinish, int& yFinish, int t_s);
 
-extern string generatePath();
+extern string generatePath(int* dir_map, int m, int n);
 
 #endif

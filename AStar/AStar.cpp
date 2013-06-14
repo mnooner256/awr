@@ -12,11 +12,11 @@
 
 using namespace std;
 
-//Directions
+//Possible directions  - 4 sides + 4 diagonals
 const int DIR = 8;
-//Both arrays start in "East" direction
-int dx[DIR]={1, 1, 0, -1, -1, -1, 0, 1};
-int dy[DIR]={0, 1, 1, 1, 0, -1, -1, -1};
+//arrays store "East" direction as 0, then clockwise through NE as 7
+int dx[DIR]={0, 1, 1, 1, 0, -1, -1, -1};
+int dy[DIR]={1, 1, 0, -1, -1, -1, 0, 1};
 
 //Function to read rfid tag and find current location
 int getCurrent(char rfid[], Node* map, int total_size)
@@ -108,8 +108,7 @@ Node* getMap(int t_s)
 
 	m = new Node[t_s];
 
-	//Need to get rid of size on top of file
-
+	//Need to get rid of size of map on top of file
 	f >> temp;
 	f >> temp;
 
@@ -135,58 +134,62 @@ Node* getMap(int t_s)
 
 }
 
+struct Less : public binary_function <Node,Node, bool>
+ {
+	//Overwriting comparison for priority queue based on Node's priorities
+	 bool operator ()(const Node* l, Node* r) const
+	 {
+		 return l->getPriority() < r->getPriority();
+	 }
+};
+
 string pathFind(Node* map, int& xStart, int& yStart, int& xFinish, int& yFinish, int t_s)
 {
-	priority_queue<Node*> open_queue; 			// list of open (not-yet-tried) nodes
-    priority_queue<Node*> closed_queue; 		// vector of tried nodes
+    queue<Node*> possible_nodes; 							// possible alternative nodes
+    int* visited_nodes = new int[t_s]; 						// map of closed (tried-out) nodes
+	int* dir_map = new int[t_s];							//map of directions
+
     fstream f;
     Node* node;
     int x_pos, y_pos, xdx, ydy, temp, m , n;
-    int* visited_nodes = new int[t_s]; 	// map of closed (tried-out) nodes
-    int* open_nodes = new int[t_s]; 	// map of open (not-yet-tried) nodes
-	int* dir_map = new int[t_s];			//map of directions
-    char buffer[200];
 
     f.open("map_layout.txt", ios::in);
-    if(!f.is_open()){
+    if(!f.is_open())
     	cout << "could not open file.\n";
-    }
 
-	f >> m >> n;
+	f >> m >> n;	//pull off the dimensions of the map from file
 
-    // initialize the node maps to zero
-    for(int j=0; j < t_s; j++) {
+    // initialize the visited node array to zero
+    for(int j=0; j < t_s; j++){
     	visited_nodes[j]=0;
-        open_nodes[j]=0;
+    	dir_map[j]=-1;
     }
 
     // create the start node and push into list of open nodes
     node = new Node(xStart, yStart, 0, 0,-1);
     node->updatePriority(xFinish, yFinish);
-    open_queue.push(node);
-    open_nodes[(xStart * m) + yStart] = node->getPriority(); // mark it on the open nodes map
+    //set the starting points direction to 11 to mark it
+    dir_map[xStart*m+yStart]=9;
+    possible_nodes.push(node);
 
     // A* search
-    while(!open_queue.empty())
+    while(!possible_nodes.empty())
     {
 		// get the current node w/ the highest priority
 		// from the list of open nodes
-		node = open_queue.top();
-		open_queue.pop();
+		node = possible_nodes.front();
+		possible_nodes.pop();
+
+		priority_queue<Node*, vector<Node*>, Less> node_options;  // nodes to go to next, sorted be priority
 
 		//Node's x and y position
 		x_pos = node->getxPos();
 		y_pos = node->getyPos();
 
-		// mark it on the closed nodes map
-		visited_nodes[(x_pos * m) + y_pos] = 1;
-
-		// quit searching when the goal state is reached
-		if(x_pos == xFinish && y_pos == yFinish)
-			generatePath();
+		visited_nodes[(x_pos * m) + y_pos] = 1;		// mark it on the closed nodes map
 
    //for debugging
-        cout << "root_x: " << x_pos << " root_y: " << y_pos << endl;
+        cout << "root: " << x_pos << " " << y_pos << endl;
 
         // generate moves (child nodes) in all possible directions
         for(int i=0; i < DIR; i++)
@@ -195,67 +198,69 @@ string pathFind(Node* map, int& xStart, int& yStart, int& xFinish, int& yFinish,
             ydy = y_pos + dy[i];
 
             //Short-circuit at the edges of the map or if it is a wall
-            if (xdx > n-1 || xdx < 0 || ydy < 0 || ydy > m-1 )
+            if (xdx > n-1 || xdx < 0 || ydy < 0 || ydy > m-1 || map[(xdx*m)+ydy].getPriority() == 1000000)
             	continue;
 
-      //for debugging purposes
-            cout << "position: " << xdx << " " << ydy << " -- priority: " << open_nodes[(xdx * m) + ydy] << endl;
-
-            //Checks to see that node has not been run before
+            //Checks to see that node has not been seen before
             if( visited_nodes[(xdx * m) + ydy] != 1 )
             {
-            	//check if new node in this direction is a wall, and discard it
-                if( map[(xdx*m)+ydy].getPriority() == 1000000){
-                	open_nodes[(xdx * m) + ydy] = 1000000;
-                	continue;
-                }
-
                 // generate a child node, update its level, priority, and record the direction from the parent
                 Node* child = new Node(xdx, ydy, map[(xdx*m)+ydy].getLevel(), map[(xdx*m)+ydy].getPriority(), i);
-
                 child->nextLevel(i);
                 child->updatePriority(xFinish, yFinish);
 
-         //for debugging
-                cout << "new priority: " << child->priority << endl;
+                //push each possible child onto the node's direction queue
+                node_options.push(child);
 
-                if(node->getPriority() >= child->getPriority())
-				{
-					cout << "pushing child  " << endl;
-					open_queue.push(child);
+       //for debugging purposes
+                cout << "position: " << xdx << " " << ydy
+                	 << " - priority, level, direction: " << child->priority
+                	 << " ; " << child->level << " ; " << child->dir << endl;
 
-         //for debugging
-                    cout << "dir: " << dir_map[(xdx * m) + ydy] << endl;
-				}
-
-                // if it is not in the open list then add into that
-                if(open_nodes[(xdx * m) + ydy] == 0)
-                {
-                    open_nodes[(xdx * m) + ydy] = child->getPriority();
-                }
-
-                cout << "deleting child" << endl;
-    			delete child; // garbage collection
             }
-
         }
-        delete node; // garbage collection
-    }
-    cout << "open: " << endl;
-    for (int i=0; i<m; i++) {
-    	for(int j=0; j<n; j++)
-    		cout << open_nodes[(i*m)+j] << " ";
-    	cout << endl;
+
+		// after having considered each of the possible directions, pull the top two children off the queue
+		// and check for a tie, otherwise push the child with the lowest priority (top) onto the possible nodes queue
+		if(!node_options.empty())
+		{
+			Node* top = new Node(node_options.top());
+
+			if(node_options.size() >= 2){
+				node_options.pop();
+
+				if(top->getPriority() == node_options.top()->getPriority()){
+					possible_nodes.push(top);
+					possible_nodes.push(node_options.top());
+
+					//update the direction map/array
+					dir_map[(node_options.top()->xPos*m)+node_options.top()->yPos] = node_options.top()->dir;
+				}
+			}
+			//update the direction map/array
+			dir_map[(top->xPos*m)+top->yPos] = top->dir;
+
+			possible_nodes.push(top);
+		}
+
+	  //garbage collection
+	  while(!node_options.empty()) {
+		  Node* temp = new Node(node_options.top());
+		  node_options.pop();
+		  delete temp;
+	  }
+
+	  delete node; // garbage collection
     }
 
-    cout << "closed: " << endl;
+    cout << "visited: " << endl;
     for (int i=0; i<m; i++) {
     	for(int j=0; j<n; j++)
     		cout << visited_nodes[(i*m)+j] << " ";
     	cout << endl;
     }
 
-    cout << "dir: " << endl;
+    cout << "directions: " << endl;
     for (int i=0; i<m; i++) {
     	for(int j=0; j<n; j++)
     		cout << dir_map[(i*m)+j] << " ";
@@ -263,33 +268,35 @@ string pathFind(Node* map, int& xStart, int& yStart, int& xFinish, int& yFinish,
     }
 	f.close();
 
-    return ""; // no route found	
+	//garbage collection
+	while(!possible_nodes.empty()){
+		Node* temp = new Node(possible_nodes.front());
+		possible_nodes.pop();
+		delete temp;
+	}
+
+    return generatePath(dir_map, m, n); // no route found
 }
 
-string generatePath()
+string generatePath( int* dir_map, int m, int n)
 {
-//		// generate the path from finish to start
-//		// by following the directions
-//		string path="";
-//
-//		while(!(x_pos == xStart && y_pos == yStart))
-//		{
-//			temp = dir_map[(x_pos * m) + y_pos];
-//			sprintf_s(buffer, "%i,%s", buffer, temp % DIR);
-//			x_pos += dx[temp];
-//			y_pos += dy[temp];
-//		}
-//
-//		path = buffer;
-//
-//		// garbage collection
-//		while(!open_queue.empty())
-//		{
-//			open_queue.pop();
-//		}
-//
-//		cout<<"no path made.\n";
-//		return path;
-//	}
-	return "";
+	// generate the path from finish by following the direction array
+	string path="";
+	char buffer[200];
+	int temp=0;
+
+	//Frank: can you look at this? Wasn't quite sure what you were aiming for for output here.
+	//I got an output, but it's not very good...
+	for (int i=0; i<m; i++) {
+	    for(int j=0; j<n; j++){
+	    	temp = dir_map[(i * m) + j];
+	    	//if(temp < 8 && temp > 0)
+	    		sprintf_s(buffer+((i * m) + j), 200-((i * m) + j), "%d", temp);
+	    }
+	}
+	path = buffer;
+
+//for debugging
+	cout << "path generated:" << path << endl;
+	return path;
 }
