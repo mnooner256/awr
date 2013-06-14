@@ -15,8 +15,8 @@ using namespace std;
 //Possible directions  - 4 sides + 4 diagonals
 const int DIR = 8;
 //arrays store "East" direction as 0, then clockwise through NE as 7
-int dx[DIR]={0, 1, 1, 1, 0, -1, -1, -1};
-int dy[DIR]={1, 1, 0, -1, -1, -1, 0, 1};
+int dx[DIR]={1, 1, 0, -1, -1, -1, 0, 1};
+int dy[DIR]={0, 1, 1, 1, 0, -1, -1, -1};
 
 //Function to read rfid tag and find current location
 int getCurrent(char rfid[], Node* map, int total_size)
@@ -120,7 +120,6 @@ Node* getMap(int t_s)
 		{
 			m[i].priority = 1000000;
 		}
-
 		//cout << m[i].xPos << m[i].yPos << endl << m[i].rfid << endl;
 	}
 
@@ -156,7 +155,7 @@ string pathFind(Node* map, int& xStart, int& yStart, int& xFinish, int& yFinish,
     	cout << "could not open file.\n";
 
 	f >> m >> n;	//pull off the dimensions of the map from file
-
+cout << m;
     // initialize the visited node array to zero
     for(int j=0; j < t_s; j++){
     	visited_nodes[j]=0;
@@ -174,6 +173,8 @@ string pathFind(Node* map, int& xStart, int& yStart, int& xFinish, int& yFinish,
     // A* search
     while(!possible_nodes.empty())
     {
+    	cout << "queue size: " << possible_nodes.size() << endl;
+
 		// get the current node w/ the highest priority
 		// from the list of open nodes
 		node = possible_nodes.front();
@@ -193,18 +194,19 @@ string pathFind(Node* map, int& xStart, int& yStart, int& xFinish, int& yFinish,
         // generate moves (child nodes) in all possible directions
         for(int i=0; i < DIR; i++)
         {
+        	cout <<  "checking direction " << i << endl;
             xdx = x_pos + dx[i];
             ydy = y_pos + dy[i];
 
             //Short-circuit at the edges of the map or if it is a wall
-            if (xdx > n-1 || xdx < 0 || ydy < 0 || ydy > m-1 || map[(xdx*m)+ydy].getPriority() == 1000000)
+            if (xdx > n-1 || xdx < 0 || ydy < 0 || ydy > m-1 || map[(ydy*n)+xdx].getPriority() == 1000000)
             	continue;
 
             //Checks to see that node has not been seen before
             if( visited_nodes[(xdx * m) + ydy] != 1 )
             {
                 // generate a child node, update its level, priority, and record the direction from the parent
-                Node* child = new Node(xdx, ydy, map[(xdx*m)+ydy].getLevel(), map[(xdx*m)+ydy].getPriority(), i);
+                Node* child = new Node(xdx, ydy, node->getLevel(), node->getPriority(), i);
                 child->nextLevel(i);
                 child->updatePriority(xFinish, yFinish);
 
@@ -290,7 +292,7 @@ string generatePath( int* dir_map, int m, int n)
 	    for(int j=0; j<n; j++){
 	    	temp = dir_map[(i * m) + j];
 	    	//if(temp < 8 && temp > 0)
-	    		sprintf_s(buffer+((i * m) + j), 200-((i * m) + j), "%i,%s", temp);
+	    		sprintf_s(buffer+((j * n) + i), 200-((j * n) + i), "%i,%s", temp);
 	    }
 	}
 	path = buffer;
