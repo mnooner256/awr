@@ -145,6 +145,7 @@ string pathFind(Node* map, int& xStart, int& yStart, int& xFinish, int& yFinish,
     queue<Node*> possible_nodes; 							// possible alternative nodes
     int* visited_nodes = new int[t_s]; 						// map of closed (tried-out) nodes
 	int* dir_map = new int[t_s];							//map of directions
+	int* prior_map = new int[t_s];							//map of priorities
 
     fstream f;
     Node* node;
@@ -155,11 +156,12 @@ string pathFind(Node* map, int& xStart, int& yStart, int& xFinish, int& yFinish,
     	cout << "could not open file.\n";
 
 	f >> m >> n;	//pull off the dimensions of the map from file
-cout << m;
+
     // initialize the visited node array to zero
     for(int j=0; j < t_s; j++){
     	visited_nodes[j]=0;
     	dir_map[j]=-1;
+    	prior_map[j]=1000000;
     }
 
     // create the start node and push into list of open nodes
@@ -168,13 +170,12 @@ cout << m;
 
     //set the starting points direction to 9 to mark it
     dir_map[yStart*n+xStart]=9;
+    prior_map[yStart*n+xStart]=node->getPriority();
     possible_nodes.push(node);
 
     // A* search
     while(!possible_nodes.empty())
     {
-    	cout << "queue size: " << possible_nodes.size()  << endl;
-
 		// get the current node w/ the highest priority
 		// from the list of open nodes
 		node = possible_nodes.front();
@@ -219,8 +220,6 @@ cout << m;
             }
         }
 
-        //see Michael's note
-
 		// after having considered each of the possible directions, pull the top two children off the queue
 		// and check for a tie, otherwise push the child with the lowest priority (top) onto the possible nodes queue
 		if(!node_options.empty())
@@ -232,19 +231,25 @@ cout << m;
 
 				if(top->getPriority() == node_options.top()->getPriority()){
 
-					cout << "Pushing child: " << node_options.top()->xPos << " " << node_options.top()->yPos << endl;
-
-					possible_nodes.push(node_options.top());
-
 					//update the direction map/array
-					dir_map[(node_options.top()->xPos*m)+node_options.top()->yPos] = node_options.top()->dir;
+					if(dir_map[(node_options.top()->yPos*n)+node_options.top()->xPos] == -1 ||
+							prior_map[(node_options.top()->yPos*n)+node_options.top()->xPos] > node_options.top()->getPriority()){
+						dir_map[(node_options.top()->xPos*m)+node_options.top()->yPos] = node_options.top()->dir;
+						prior_map[(node_options.top()->xPos*m)+node_options.top()->yPos] = node_options.top()->getPriority();
+
+						cout << "Pushing child: " << node_options.top()->xPos << " " << node_options.top()->yPos << endl;
+						possible_nodes.push(node_options.top());
+					}
 				}
 			}
 			//update the direction map/array
-			dir_map[(top->yPos*n)+top->xPos] = top->dir;
+			if(dir_map[(top->yPos*n)+top->xPos] == -1 || prior_map[(top->yPos*n)+top->xPos] > top->getPriority() ){
+				dir_map[(top->yPos*n)+top->xPos] = top->dir;
+				prior_map[(top->yPos*n)+top->xPos] = top->getPriority();
 
-			cout << "Pushing child: " << top->xPos << " " << top->yPos << endl;
-			possible_nodes.push(top);
+				cout << "Pushing child: " << top->xPos << " " << top->yPos << endl;
+				possible_nodes.push(top);
+			}
 		}
 
 	  //garbage collection
@@ -261,16 +266,23 @@ cout << m;
     cout << "visited: " << endl;
     for (int i=0; i<m; i++) {
     	for(int j=0; j<n; j++)
-    		cout << visited_nodes[(i*m)+j] << " ";
+    		cout << visited_nodes[(i*n)+j] << " ";
     	cout << endl;
+    }
+    cout << "priorities: " << endl;
+    for (int i=0; i<m; i++) {
+       	for(int j=0; j<n; j++)
+       		cout << prior_map[(i*n)+j] << "\t";
+       	cout << endl;
     }
 
     cout << "directions: " << endl;
     for (int i=0; i<m; i++) {
     	for(int j=0; j<n; j++)
-    		cout << dir_map[(i*m)+j] << "\t";
+    		cout << dir_map[(i*n)+j] << "\t";
     	cout << endl;
     }
+
 	f.close();
 
 	//garbage collection
