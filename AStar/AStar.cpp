@@ -136,7 +136,7 @@ struct Less : public binary_function <Node,Node, bool>
 	//Overwriting comparison for priority queue based on Node's priorities
 	 bool operator ()(const Node* l, Node* r) const
 	 {
-		 return l->getPriority() < r->getPriority();
+		 return l->getPriority() > r->getPriority();
 	 }
 };
 
@@ -167,7 +167,7 @@ cout << m;
     node->updatePriority(xFinish, yFinish);
 
     //set the starting points direction to 9 to mark it
-    dir_map[xStart*m+yStart]=9;
+    dir_map[yStart*n+xStart]=9;
     possible_nodes.push(node);
 
     // A* search
@@ -186,7 +186,7 @@ cout << m;
 		x_pos = node->getxPos();
 		y_pos = node->getyPos();
 
-		visited_nodes[(x_pos * m) + y_pos] = 1;		// mark it on the closed nodes map
+		visited_nodes[(y_pos * n) + x_pos] = 1;		// mark it on the closed nodes map
 
    //for debugging
         cout << "root: " << x_pos << " " << y_pos << endl;
@@ -194,7 +194,6 @@ cout << m;
         // generate moves (child nodes) in all possible directions
         for(int i=0; i < DIR; i++)
         {
-        	cout <<  "checking direction " << i << endl;
             xdx = x_pos + dx[i];
             ydy = y_pos + dy[i];
 
@@ -203,7 +202,7 @@ cout << m;
             	continue;
 
             //Checks to see that node has not been seen before
-            if( visited_nodes[(xdx * m) + ydy] != 1 )
+            if( visited_nodes[(ydy*n)+xdx] != 1 )
             {
                 // generate a child node, update its level, priority, and record the direction from the parent
                 Node* child = new Node(xdx, ydy, node->getLevel(), node->getPriority(), i);
@@ -220,6 +219,8 @@ cout << m;
             }
         }
 
+        //see Michael's note
+
 		// after having considered each of the possible directions, pull the top two children off the queue
 		// and check for a tie, otherwise push the child with the lowest priority (top) onto the possible nodes queue
 		if(!node_options.empty())
@@ -230,7 +231,9 @@ cout << m;
 				node_options.pop();
 
 				if(top->getPriority() == node_options.top()->getPriority()){
-					possible_nodes.push(top);
+
+					cout << "Pushing child: " << node_options.top()->xPos << " " << node_options.top()->yPos << endl;
+
 					possible_nodes.push(node_options.top());
 
 					//update the direction map/array
@@ -238,8 +241,9 @@ cout << m;
 				}
 			}
 			//update the direction map/array
-			dir_map[(top->xPos*m)+top->yPos] = top->dir;
+			dir_map[(top->yPos*n)+top->xPos] = top->dir;
 
+			cout << "Pushing child: " << top->xPos << " " << top->yPos << endl;
 			possible_nodes.push(top);
 		}
 
@@ -253,6 +257,7 @@ cout << m;
 	  delete node; // garbage collection
     }
 
+  //for debugging
     cout << "visited: " << endl;
     for (int i=0; i<m; i++) {
     	for(int j=0; j<n; j++)
@@ -263,7 +268,7 @@ cout << m;
     cout << "directions: " << endl;
     for (int i=0; i<m; i++) {
     	for(int j=0; j<n; j++)
-    		cout << dir_map[(i*m)+j] << " ";
+    		cout << dir_map[(i*m)+j] << "\t";
     	cout << endl;
     }
 	f.close();
@@ -291,8 +296,8 @@ string generatePath( int* dir_map, int m, int n)
 	for (int i=0; i<m; i++) {
 	    for(int j=0; j<n; j++){
 	    	temp = dir_map[(i * m) + j];
-	    	//if(temp < 8 && temp > 0)
-	    		sprintf_s(buffer+((j * n) + i), 200-((j * n) + i), "%i,%s", temp);
+	    	//if(temp < 10 && temp > -1)
+	    		sprintf_s(buffer+((i * m) + j), 200-((i * m) + j), "%i", temp);
 	    }
 	}
 	path = buffer;

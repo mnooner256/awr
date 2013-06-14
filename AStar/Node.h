@@ -91,7 +91,7 @@ public:
     {
     	//If direction is cardinal, level is 10.
 		//Otherwise, level is 20 (longer for diagonal).
-        level += (i %2 == 0?10:20);
+        level += (i %2 == 0?10:150);
     }
 
     // Estimation function for the remaining distance to the goal.
