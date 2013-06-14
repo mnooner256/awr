@@ -84,12 +84,12 @@ public:
 
     void updatePriority(const int & xDest, const int & yDest)
     {
-        priority = level + estimate(xDest, yDest) * 10;
+        priority = level + estimate(xDest, yDest);
     }
 
     void nextLevel(int& i) // i: direction
     {
-		//If direction is cardinal, level is 10.
+    	//If direction is cardinal, level is 10.
 		//Otherwise, level is 20 (longer for diagonal).
         level += (i %2 == 0?10:20);
     }
@@ -103,7 +103,7 @@ public:
         yd = yDest-yPos;
 
         //Distance Formula
-        d = static_cast<int>(sqrt(xd * xd + yd * yd));
+        d = static_cast<int>(sqrt(xd * xd + yd * yd)*10);
 
         return d;
     }

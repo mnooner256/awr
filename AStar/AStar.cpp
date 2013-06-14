@@ -173,7 +173,7 @@ cout << m;
     // A* search
     while(!possible_nodes.empty())
     {
-    	cout << "queue size: " << possible_nodes.size() << endl;
+    	cout << "queue size: " << possible_nodes.size()  << endl;
 
 		// get the current node w/ the highest priority
 		// from the list of open nodes

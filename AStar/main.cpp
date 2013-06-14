@@ -30,8 +30,8 @@ int main()
 
 	//start at (0,0) end at (4,0)
 	x_start = y_start = 0;
-	x_end = 4;
-	y_end = 0;
+	x_end = 3;
+	y_end = 3;
 
 	//magically read position from RFID sensor
 
