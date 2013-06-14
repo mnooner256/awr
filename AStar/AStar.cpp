@@ -166,7 +166,8 @@ string pathFind(Node* map, int& xStart, int& yStart, int& xFinish, int& yFinish,
     // create the start node and push into list of open nodes
     node = new Node(xStart, yStart, 0, 0,-1);
     node->updatePriority(xFinish, yFinish);
-    //set the starting points direction to 11 to mark it
+
+    //set the starting points direction to 9 to mark it
     dir_map[xStart*m+yStart]=9;
     possible_nodes.push(node);
 
@@ -214,7 +215,6 @@ string pathFind(Node* map, int& xStart, int& yStart, int& xFinish, int& yFinish,
                 cout << "position: " << xdx << " " << ydy
                 	 << " - priority, level, direction: " << child->priority
                 	 << " ; " << child->level << " ; " << child->dir << endl;
-
             }
         }
 
@@ -273,7 +273,8 @@ string pathFind(Node* map, int& xStart, int& yStart, int& xFinish, int& yFinish,
 		delete temp;
 	}
 
-    return generatePath(dir_map, m, n); // no route found
+	//
+    return generatePath(dir_map, m, n);
 }
 
 string generatePath( int* dir_map, int m, int n)
@@ -289,7 +290,7 @@ string generatePath( int* dir_map, int m, int n)
 	    for(int j=0; j<n; j++){
 	    	temp = dir_map[(i * m) + j];
 	    	//if(temp < 8 && temp > 0)
-	    		sprintf_s(buffer+((i * m) + j), 200-((i * m) + j), "%d", temp);
+	    		sprintf_s(buffer+((i * m) + j), 200-((i * m) + j), "%i,%s", temp);
 	    }
 	}
 	path = buffer;
