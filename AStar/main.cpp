@@ -12,35 +12,99 @@
 #include <ctime>
 #include "Node.h"
 #include "Astar.h"
+#include "serial.h"
+#include <Windows.h>
+
 
 using namespace std;
 
 Node* map;
 string path;
+const int dataLength = 256;
 
-// A-star algorithm.
-// The route returned is a string of directional digits.
+BOOL initComm(Serial* SP, OVERLAPPED osReader)
+{
+	//Check whether the Serial Port connected successfully
+	if (SP->IsConnected()) {
+		std::cout <<"Com port connected\n";
+
+		//Create event handle for oberlapping
+		osReader.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
+		if (osReader.hEvent == NULL) {
+			return FALSE; 	// Error creating event; abort.
+		}
+
+		char temp[100] = "";
+		if(SP->ReadLine(temp,dataLength, osReader, 1)){
+			if(temp[0]=='H') {
+				if(SP->WriteData(temp,strlen(temp),osReader)){
+					std::cout<< "Connected to the Arduino.\n";
+					return TRUE;
+				}
+				else std::cout << "Could not send ACK.\n";
+			}
+			else std::cout << "Did not receive proper msg: " << temp <<std::endl;
+		}
+	}
+	return FALSE;
+}
 
 int main()
 {
-	int x_start,  y_start, x_end, y_end, total_size;
+	BOOL fWaitingOnRead = TRUE;
+	OVERLAPPED osReader = {0};
+	Serial* SP = new Serial("COM5");	//change as needed
+	char msg[dataLength] = "";
+	int readResult = 0;
+	int x_start,  y_start, x_end, y_end, total_size, x_cur, y_cur;
+	string rfid;
 
 	total_size = getSize();
 	map = getMap(total_size);
 
-	//start at (0,0) end at (4,0)
-	x_start = y_start = 0;
-	x_end = 3;
-	y_end = 3;
+	x_end = 3; y_end = 3; //x_start = y_start = 0;
 
-	//magically read position from RFID sensor
+	//perform handshake with the robot before trying to communicate
+	if(initComm(SP, osReader)){
 
-	path = pathFind(map, x_start, y_start, x_end, y_end, total_size);
+		while( x_cur != x_end && y_cur != y_end ){
+			//Check for and read in RFID tags
+			if(SP->IsConnected()) {
+				if(fWaitingOnRead) {
+					if(SP->ReadLine(msg,dataLength, osReader, 14)>0) {
+						rfid.copy(msg, strlen(msg),0);
+						if( path.empty() ){
+							getPosition( rfid, x_start, y_start, map);
+							path = pathFind(map, x_start, y_start, x_end, y_end, total_size);
+						}
+						//std::cout << msg << std::endl;
+						fWaitingOnRead = FALSE;
+					}
+				}
+			}
 
-	//findStart(char[])
-	//sendPath(string)
-	//--->verify RFID
-	//------->error checking
+			if(!check(x_cur, y_cur, map, rfid)) {
+				getPosition( rfid, x_cur, y_cur, map);
+				path = pathFind(map, x_start, y_start, x_end, y_end, total_size);
+			}
+			else
+				path = path.substr(1,path.length()-1);
+
+			//Send instructions as a single char to the robot
+			if(SP->IsConnected()) {
+				if(!fWaitingOnRead) {
+					std::cout <<"What is your command? ";
+					std::cin >> msg;
+					if(SP->WriteData(msg,strlen(msg),osReader)){
+						 move( x_cur, y_cur, path);
+						fWaitingOnRead = TRUE;
+					}
+				}
+			}
+		}
+
+	}
 
     return 0;
 }
+

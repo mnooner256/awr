@@ -17,25 +17,39 @@ const int DIR = 8;
 //arrays store "East" direction as 0, then clockwise through NE as 7
 int dx[DIR]={1, 1, 0, -1, -1, -1, 0, 1};
 int dy[DIR]={0, 1, 1, 1, 0, -1, -1, -1};
+int m;
+int n;
 
 //Function to read rfid tag and find current location
-int getCurrent(char rfid[], Node* map, int total_size)
+int getPosition(string rfid, int& x, int& y, Node* map)
 {
-  string tag;
-
-  tag = rfid;
-
   //Loop through the map and find the rfid tag
-  for(int i=0; i<total_size; i++)
-  {
-    if(map[i].getRfid() == tag)
-    {
+  for(int i=0; i<m*n; i++) {
+    if(map[i].getRfid().compare(rfid)) {
+    	x=map[i].getxPos();
+    	y=map[i].getyPos();
       return i;
     }
   }
 
   //If not found, return invalid entry
   return -1;
+}
+
+string getRFID(int x, int y, Node* map){
+	return map[y*n+x].getRfid();
+}
+
+bool check(int x_cur, int y_cur, Node* map, string rfid){
+	return getRFID(x_cur, y_cur, map).compare(rfid);
+}
+
+//update the current x,y position with the next move along the path
+void move(int& x, int& y, string path){
+	int i = (int)path[0];
+
+	x += dx[i];
+	y += dy[i];
 }
 
 void sendPath(string path, string rfid_path)
@@ -148,14 +162,14 @@ string pathFind(Node* map, int& xStart, int& yStart, int& xFinish, int& yFinish,
 
     fstream f;
     Node* node;
-    int x_pos, y_pos, xdx, ydy, temp, m , n;
+    int x_pos, y_pos, xdx, ydy, temp;
 
     f.open("map_layout.txt", ios::in);
     if(!f.is_open())
     	cout << "could not open file.\n";
 
 	f >> m >> n;	//pull off the dimensions of the map from file
-cout << m;
+
     // initialize the visited node array to zero
     for(int j=0; j < t_s; j++){
     	visited_nodes[j]=0;
@@ -173,8 +187,6 @@ cout << m;
     // A* search
     while(!possible_nodes.empty())
     {
-    	cout << "queue size: " << possible_nodes.size()  << endl;
-
 		// get the current node w/ the highest priority
 		// from the list of open nodes
 		node = possible_nodes.front();

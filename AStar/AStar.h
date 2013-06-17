@@ -8,7 +8,9 @@
 #ifndef ASTAR_H_
 #define ASTAR_H_
 
-extern int getCurrent(char rfid[], Node* map, int total_size);
+extern int getPosition(string rfid, int& x, int& y, Node* map);
+
+extern bool check(int x_cur, int y_cur, Node* map, string rfid);
 
 extern void sendPath(string path, string rfid_path);
 
