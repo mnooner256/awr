@@ -1,89 +1,46 @@
-/***************************************************************
-Program that brings it all together
+/*A* Pathing Algorithm for Automated Wheelchair
 
-Created by: Francisco Ruiz
-***************************************************************/
+ Created by: Francisco Ruiz
+ */
+
 #include <fstream>
-#include "AStar.h"
+#include <iostream>
+#include <iomanip>
+#include <queue>
+#include <string>
+#include <math.h>
+#include <ctime>
 #include "Node.h"
+#include "Astar.h"
 
 using namespace std;
 
-void main()
+Node* map;
+string path;
+
+// A-star algorithm.
+// The route returned is a string of directional digits.
+
+int main()
 {
-	fstream f, g;
-	int x_size, y_size, map_area, x, y, rfid;
-	Node start, end;
-	Node* map;
-	Node* curr;
+	int x_start,  y_start, x_end, y_end, total_size;
 
-	//reads file sent by UI - path will be changed - downloaded from some source
-	f.open("C:/Users/fjr1983/Desktop/Map.txt", ios::in);
-	//reads first two values as x- and y-size of map
-	f >> x_size >> y_size;
-	//allocates space for map dynamically
-	map = new Node[x_size*y_size];
-	//read nodes to get rfid or walls
-	while(!f.eof())
-	{
-		for(int i=0; i<x_size*y_size; i++)
-		{
-			curr = map[i];
+	total_size = getSize();
+	map = getMap(total_size);
 
-			f >> x >> y >> rfid;
-			//reads values from file into current node
-			curr->xPos = x;
-			curr->yPos = y;
-			curr->rfid = rfid;
-			//if rfid is zero (wall), sets priority very high
-			if(rfid == 0)
-			{
-				curr->priority = 500000;
-			}
-			//increments pointer to next node in sequence
+	//start at (0,0) end at (4,0)
+	x_start = y_start = 0;
+	x_end = 3;
+	y_end = 3;
 
-			curr = map[i+1];
-		}
-	}
-	f.close();
+	//magically read position from RFID sensor
 
-	g.open("C:/Users/Desktop/Start.txt", ios::in);
-	//infinite loop - will research
-	while(true)
-	{
-		//read start coordinates and put into starting node
-		g >> x >> y;
-		start.xPos = x;
-		start.yPos = y;
-		//read finish coordinates and put in end node
-		g >> x >> y;
-		end.xPos = x;
-		end.yPos = y;
+	path = pathFind(map, x_start, y_start, x_end, y_end, total_size);
 
+	//findStart(char[])
+	//sendPath(string)
+	//--->verify RFID
+	//------->error checking
 
-
-
-	}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-}
-
-
-
-
-
-
+    return 0;
 }
