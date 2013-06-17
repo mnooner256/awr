@@ -29,7 +29,8 @@ int main()
 	map = getMap(total_size);
 
 	//start at (0,0) end at (4,0)
-	x_start = y_start = 0;
+	x_start = 1;
+	y_start = 5;
 	x_end = 3;
 	y_end = 3;
 
@@ -38,9 +39,11 @@ int main()
 	path = pathFind(map, x_start, y_start, x_end, y_end, total_size);
 
 	//findStart(char[])
-	//sendPath(string)
+	sendPath(path);
 	//--->verify RFID
 	//------->error checking
+
+	cout << path << endl;
 
     return 0;
 }
