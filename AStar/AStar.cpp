@@ -7,6 +7,7 @@
 #include <fstream>
 #include <string>
 #include <queue>
+#include <stack>
 #include "Node.h"
 #include "Astar.h"
 
@@ -23,11 +24,15 @@ int n;
 //Function to read rfid tag and find current location
 int getPosition(string rfid, int& x, int& y, Node* map)
 {
+	cout << "check: " << rfid << endl;
   //Loop through the map and find the rfid tag
   for(int i=0; i<m*n; i++) {
-    if(map[i].getRfid().compare(rfid)) {
-    	x=map[i].getxPos();
-    	y=map[i].getyPos();
+	  //look for the rfid tag that matches the current position within the map
+	  // need to account for format of R:rfid#
+    if(map[i].getRfid().compare(rfid.substr(2,rfid.length()-2)) ==0) {
+    	x= i%n;
+    	y = i/m;
+    	cout << "current position: "<< x << " " << y << endl;
       return i;
     }
   }
@@ -46,102 +51,47 @@ bool check(int x_cur, int y_cur, Node* map, string rfid){
 
 //update the current x,y position with the next move along the path
 void move( int& x, int& y, string path){
-	int i = 0;//path.at(0);
+	int i = path.at(0);
 
-	//x += dx[i];
-	//y += dy[i];
-}
-
-void sendPath(string path, string rfid_path)
-{
-  string rfid;
-  int size = path.size();
-  char* send_path;
-
-  send_path = new char[size];
-
-  //transfers string to character array
-  for(int i=0; i < size; i++)
-  {
-    send_path[i] = path[i];
-  }
-
-  //infinite loop (until broken)
-  while(true)
-  {
-    for(int j=0; j<size; j++)
-    {
-      //send path[i] to robot
-
-      //receive rfid from robot
-
-      if(rfid_path == rfid)
-      {
-        continue;
-      }
-      //breaks out of loop for restart if rfid value is unexpected
-      else
-        break;
-    }
-  }
-}
-
-int getSize()
-{
-	fstream f;
-	int x_size, y_size, tot_size;
-
-	f.open("map_layout.txt", ios::in);
-	if(!f.is_open()){
-		cout << "could not open file.\n";
-	}
-
-	//reads sizes from first line in map file
-	f >> x_size >> y_size;
-
-	tot_size = x_size * y_size;
-
-	f.close();
-
-	return tot_size;
+	x += dx[i];
+	y += dy[i];
+	cout << "new move: " << x << " " << y << endl;
 }
 
 //Function to get map from file sent from UI
-Node* getMap(int t_s)
+Node* getMap(int& t_s)
 {
 	fstream f;
-	Node* m;
-	char temp;
+	 Node* hold_node;
 
 	f.open("map_layout.txt", ios::in);
 	if(!f.is_open()){
 		cout << "could not open file.\n";
 	}
 
-	m = new Node[t_s];
+	f >> m >> n;	//pull off the dimensions of the map from file
 
-	//Need to get rid of size of map on top of file
-	f >> temp;
-	f >> temp;
+	t_s = m*n;
+	hold_node = new Node[t_s];
 
 	//loops through the map and reads values to node
 	for(int i = 0; i < t_s; i++)
 	{
-		f >> m[i].xPos >> m[i].yPos >> m[i].rfid;
+		f >> hold_node[i].xPos >> hold_node[i].yPos >> hold_node[i].rfid;
 
 		//Sets wall to high priority
-		if(m[i].rfid == "w")
+		if(hold_node[i].rfid == "w")
 		{
-			m[i].priority = 1000000;
+			hold_node[i].priority = 1000000;
 		}
-		//cout << m[i].xPos << m[i].yPos << endl << m[i].rfid << endl;
+//cout << m[i].xPos << m[i].yPos << endl << m[i].rfid << endl;
 	}
 
 	cout << "Map  compiled!" << endl;
 
 	f.close();
 
-	return m;
+	return hold_node;
 
 }
 
@@ -156,19 +106,12 @@ struct Less : public binary_function <Node,Node, bool>
 
 string pathFind(Node* map, int& xStart, int& yStart, int& xFinish, int& yFinish, int t_s)
 {
-    queue<Node*> possible_nodes; 							// possible alternative nodes
+    stack<Node*> possible_nodes; 							// possible alternative nodes
     int* visited_nodes = new int[t_s]; 						// map of closed (tried-out) nodes
 	int* dir_map = new int[t_s];							//map of directions
 
-    fstream f;
     Node* node;
     int x_pos, y_pos, xdx, ydy, temp;
-
-    f.open("map_layout.txt", ios::in);
-    if(!f.is_open())
-    	cout << "could not open file.\n";
-
-	f >> m >> n;	//pull off the dimensions of the map from file
 
     // initialize the visited node array to zero
     for(int j=0; j < t_s; j++){
@@ -201,12 +144,11 @@ string pathFind(Node* map, int& xStart, int& yStart, int& xFinish, int& yFinish,
 		visited_nodes[(x_pos * m) + y_pos] = 1;		// mark it on the closed nodes map
 
    //for debugging
-        cout << "root: " << x_pos << " " << y_pos << endl;
+   cout << "root: " << x_pos << " " << y_pos << endl;
 
         // generate moves (child nodes) in all possible directions
         for(int i=0; i < DIR; i++)
         {
-        	cout <<  "checking direction " << i << endl;
             xdx = x_pos + dx[i];
             ydy = y_pos + dy[i];
 
@@ -226,9 +168,9 @@ string pathFind(Node* map, int& xStart, int& yStart, int& xFinish, int& yFinish,
                 node_options.push(child);
 
        //for debugging purposes
-                cout << "position: " << xdx << " " << ydy
-                	 << " - priority, level, direction: " << child->priority
-                	 << " ; " << child->level << " ; " << child->dir << endl;
+       //cout << "position: " << xdx << " " << ydy
+                	// << " - priority, level, direction: " << child->priority
+                	// << " ; " << child->level << " ; " << child->dir << endl;
             }
         }
 
@@ -265,21 +207,6 @@ string pathFind(Node* map, int& xStart, int& yStart, int& xFinish, int& yFinish,
 	  delete node; // garbage collection
     }
 
-    cout << "visited: " << endl;
-    for (int i=0; i<m; i++) {
-    	for(int j=0; j<n; j++)
-    		cout << visited_nodes[(i*m)+j] << " ";
-    	cout << endl;
-    }
-
-    cout << "directions: " << endl;
-    for (int i=0; i<m; i++) {
-    	for(int j=0; j<n; j++)
-    		cout << dir_map[(i*m)+j] << " ";
-    	cout << endl;
-    }
-	f.close();
-
 	//garbage collection
 	while(!possible_nodes.empty()){
 		Node* temp = new Node(possible_nodes.front());
@@ -287,29 +214,42 @@ string pathFind(Node* map, int& xStart, int& yStart, int& xFinish, int& yFinish,
 		delete temp;
 	}
 
-	//
-    return generatePath(dir_map, m, n);
+	//start at the end point and follow the directions backwards
+    return generatePath(dir_map, xFinish, yFinish, xStart, yStart);
 }
 
-string generatePath( int* dir_map, int m, int n)
+string generatePath( int* dir_map, int xEnd, int yEnd, int xStart, int yStart)
 {
 	// generate the path from finish by following the direction array
 	string path="";
 	char buffer[200];
 	int temp=0;
+	stack<string> right_path;
+	// Current x and y position in the direction map. Used to check
+	// if the start node is the current node.
+	int cur_x;
+	int cur_y;
+	int dir_hold;
 
-	//Frank: can you look at this? Wasn't quite sure what you were aiming for for output here.
-	//I got an output, but it's not very good...
-	for (int i=0; i<m; i++) {
-	    for(int j=0; j<n; j++){
-	    	temp = dir_map[(i * m) + j];
-	    	//if(temp < 8 && temp > 0)
-	    		sprintf_s(buffer+((j * n) + i), 200-((j * n) + i), "%i,%s", temp);
-	    }
+	cur_x = xEnd;
+	cur_y = yEnd;
+
+	while(cur_x!=xStart || cur_y!=yStart){
+		dir_hold = dir_map[(cur_y*n)+cur_x];
+
+		cur_x += dx[dir_hold]*-1;
+		cur_y += dy[dir_hold]*-1;
+
+		cout << "path generating: " << std::to_string(dir_hold) << endl;
+		right_path.push(std::to_string(dir_hold));
 	}
-	path = buffer;
+
+	while(!right_path.empty()){
+		path += right_path.top();
+		right_path.pop();
+	}
 
 //for debugging
-	cout << "path generated:" << path << endl;
+cout << "path generated: " << path << endl;
 	return path;
 }

@@ -59,34 +59,33 @@ int main()
 	int x_start,  y_start, x_end, y_end, total_size, x_cur, y_cur;
 	string rfid;
 
-	total_size = getSize();
 	map = getMap(total_size);
 
-	x_end = 3; y_end = 3; //x_start = y_start = 0;
+	x_end = 4; y_end = 1; x_start = y_start = 0;
 	x_cur = 0; y_cur = 0;
 
 	//perform handshake with the robot before trying to communicate
 	if(initComm(SP, osReader)){
 
-		while( x_cur != x_end && y_cur != y_end ){
+		while( x_cur != x_end || y_cur != y_end ){
 			//Check for and read in RFID tags
 			if(SP->IsConnected()) {
 				if(fWaitingOnRead) {
 					if(SP->ReadLine(msg,dataLength, osReader, 14)>0) {
-						rfid.copy(msg, strlen(msg),0);
+						rfid = msg;
 						if( path.empty() ){
 							getPosition( rfid, x_start, y_start, map);
-							x_cur = x_start;
-							y_cur = y_start;
+							x_cur = x_start; y_cur = y_start;
 							path = pathFind(map, x_start, y_start, x_end, y_end, total_size);
 						}
-						//std::cout << msg << std::endl;
+						std::cout << msg << std::endl;
 						fWaitingOnRead = FALSE;
 					}
 				}
 			}
 
 			if(!check(x_cur, y_cur, map, rfid)) {
+				cout << "unexpected position. Recalculating...." << endl;
 				getPosition( rfid, x_cur, y_cur, map);
 				path = pathFind(map, x_start, y_start, x_end, y_end, total_size);
 			}
@@ -96,8 +95,7 @@ int main()
 			//Send instructions as a single char to the robot
 			if(SP->IsConnected()) {
 				if(!fWaitingOnRead) {
-					std::cout <<"What is your command? ";
-					std::cin >> msg;
+					msg[0] = path.at(0);
 					if(SP->WriteData(msg,strlen(msg),osReader)){
 						move( x_cur, y_cur, path);
 						fWaitingOnRead = TRUE;

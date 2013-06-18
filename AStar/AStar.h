@@ -16,14 +16,10 @@ extern void move(int& x, int& y, string path);
 
 extern string getRFID(int x, int y, Node* map);
 
-extern void sendPath(string path, string rfid_path);
-
-extern int getSize();
-
-extern Node* getMap(int t_s);
+extern Node* getMap(int& t_s);
 
 extern string pathFind(Node*, int& xStart, int& yStart, int& xFinish, int& yFinish, int t_s);
 
-extern string generatePath(int*  dir_map, int m, int n);
+extern string generatePath( int* dir_map, int xEnd, int yEnd, int xStart, int yStart);
 
 #endif
