@@ -45,11 +45,11 @@ bool check(int x_cur, int y_cur, Node* map, string rfid){
 }
 
 //update the current x,y position with the next move along the path
-void move(int& x, int& y, string path){
-	int i = (int)path[0];
+void move( int& x, int& y, string path){
+	int i = 0;//path.at(0);
 
-	x += dx[i];
-	y += dy[i];
+	//x += dx[i];
+	//y += dy[i];
 }
 
 void sendPath(string path, string rfid_path)

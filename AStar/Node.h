@@ -8,8 +8,6 @@ Needs to "hard-code" map data - only things that change should be start and end
 #ifndef NODE_H
 #define NODE_H
 
-#include <fstream>
-
 using namespace std;
 
 class Node

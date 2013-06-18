@@ -12,6 +12,10 @@ extern int getPosition(string rfid, int& x, int& y, Node* map);
 
 extern bool check(int x_cur, int y_cur, Node* map, string rfid);
 
+extern void move(int& x, int& y, string path);
+
+extern string getRFID(int x, int y, Node* map);
+
 extern void sendPath(string path, string rfid_path);
 
 extern int getSize();

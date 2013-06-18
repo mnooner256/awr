@@ -63,6 +63,7 @@ int main()
 	map = getMap(total_size);
 
 	x_end = 3; y_end = 3; //x_start = y_start = 0;
+	x_cur = 0; y_cur = 0;
 
 	//perform handshake with the robot before trying to communicate
 	if(initComm(SP, osReader)){
@@ -75,6 +76,8 @@ int main()
 						rfid.copy(msg, strlen(msg),0);
 						if( path.empty() ){
 							getPosition( rfid, x_start, y_start, map);
+							x_cur = x_start;
+							y_cur = y_start;
 							path = pathFind(map, x_start, y_start, x_end, y_end, total_size);
 						}
 						//std::cout << msg << std::endl;
@@ -96,7 +99,7 @@ int main()
 					std::cout <<"What is your command? ";
 					std::cin >> msg;
 					if(SP->WriteData(msg,strlen(msg),osReader)){
-						 move( x_cur, y_cur, path);
+						move( x_cur, y_cur, path);
 						fWaitingOnRead = TRUE;
 					}
 				}
