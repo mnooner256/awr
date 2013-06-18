@@ -2,7 +2,7 @@
 
 SoftwareSerial id20(3,4); // virtual serial port(RX,TX) for RFID reader
 char tag[100];
-char dir;
+int dir = 6;
 char* hand_var = "H\n"; //Serial comm handshake variable
 int hand_flag = 0; //flag for successful handshake/setup
 
@@ -41,12 +41,30 @@ void loop()
 
 void read_from_controller(){
   if(Serial.available() >0){
-    dir = Serial.read();
+    //read in the new direction command and convert to int
+    char temp = Serial.read();
+    int var = temp-'0';
     
-    if(dir != NULL) {
-      drive_motors(dir);
+    if(var==0 && dir ==7){
+      drive_motors(-1);
     }
-    dir = NULL;
+    else {
+      dir = var - dir;
+      
+      if(abs(dir) >4){
+        //new direction relative to previous direction
+        if(dir<0){
+          drive_motors(-dir-4);
+        }
+        else
+          drive_motors(-dir+4);
+      }
+      else
+        drive_motors(dir);
+    }
+      
+    //reset direction to the command that was received  
+    dir = var;
     Serial.flush();
   }
 }

@@ -20,7 +20,7 @@ using namespace std;
 
 Node* map;
 string path;
-const int dataLength = 256;
+const int dataLength = 64;
 
 BOOL initComm(Serial* SP, OVERLAPPED osReader)
 {
@@ -49,19 +49,35 @@ BOOL initComm(Serial* SP, OVERLAPPED osReader)
 	return FALSE;
 }
 
+BOOL read(Serial* SP, OVERLAPPED osReader, char* msg, int toRead)
+{
+	int readResult = 0;
+	BOOL finished = FALSE;
+
+	cout << "we will see this" << endl;
+	//blocking function call - should read until all is read off of the serial buffer
+	//and the expected array size (toRead) is reached
+	readResult = SP->ReadLine(msg,dataLength, osReader, toRead);
+
+	cout << "we might see this" << endl;
+	if(readResult >=0){
+		finished = TRUE;
+	}
+	return finished;
+}
+
 int main()
 {
 	BOOL fWaitingOnRead = TRUE;
 	OVERLAPPED osReader = {0};
 	Serial* SP = new Serial("COM5");	//change as needed
-	char msg[dataLength] = "";
 	int readResult = 0;
 	int x_start,  y_start, x_end, y_end, total_size, x_cur, y_cur;
 	string rfid;
 
 	map = getMap(total_size);
 
-	x_end = 4; y_end = 1; x_start = y_start = 0;
+	x_end = 4; y_end = 0; x_start = y_start = 0;
 	x_cur = 0; y_cur = 0;
 
 	//perform handshake with the robot before trying to communicate
@@ -70,33 +86,39 @@ int main()
 		while( x_cur != x_end || y_cur != y_end ){
 			//Check for and read in RFID tags
 			if(SP->IsConnected()) {
+
 				if(fWaitingOnRead) {
+					char msg[dataLength] = "";
 					if(SP->ReadLine(msg,dataLength, osReader, 14)>0) {
+
+		//for debugging
+		std::cout << "read: " << msg << std::endl;
+
 						rfid = msg;
 						if( path.empty() ){
 							getPosition( rfid, x_start, y_start, map);
 							x_cur = x_start; y_cur = y_start;
 							path = pathFind(map, x_start, y_start, x_end, y_end, total_size);
 						}
-						std::cout << msg << std::endl;
+						else if(!check(x_cur, y_cur, map, rfid)) {
+							cout << "unexpected position. Recalculating...." << endl;
+							getPosition( rfid, x_cur, y_cur, map);
+							path = pathFind(map, x_start, y_start, x_end, y_end, total_size);
+						}
+						else
+							path = path.substr(1,path.length()-1);
+
 						fWaitingOnRead = FALSE;
 					}
 				}
 			}
 
-			if(!check(x_cur, y_cur, map, rfid)) {
-				cout << "unexpected position. Recalculating...." << endl;
-				getPosition( rfid, x_cur, y_cur, map);
-				path = pathFind(map, x_start, y_start, x_end, y_end, total_size);
-			}
-			else
-				path = path.substr(1,path.length()-1);
-
 			//Send instructions as a single char to the robot
 			if(SP->IsConnected()) {
 				if(!fWaitingOnRead) {
-					msg[0] = path.at(0);
-					if(SP->WriteData(msg,strlen(msg),osReader)){
+					char array[2] = {path[0], '\0'};
+					if(SP->WriteData(array,strlen(array),osReader)){
+						cout << "direction: " << array << endl;
 						move( x_cur, y_cur, path);
 						fWaitingOnRead = TRUE;
 					}
@@ -104,8 +126,21 @@ int main()
 			}
 		}
 
-	}
+		if(SP->IsConnected()) {
+			if(!fWaitingOnRead) {
+				char array[2] = {16, '\0'};
+				if(SP->WriteData(array,strlen(array),osReader))
+					cout << "Escaped!" << endl;
+			}
+			else
+				cout << "end is reached" << endl;
+		}
 
+	}
+	else
+		cout<< "Communication error!" << endl;
+
+	delete SP;
     return 0;
 }
 

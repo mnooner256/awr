@@ -122,6 +122,7 @@ int Serial::ReadLine(char *buffer, unsigned int nbChar, OVERLAPPED osReader, int
 
 		//Read in new data
 		readStat = ReadData(buf,nbChar, osReader);
+
 		if( readStat>0 ){
 			//Store new data into buffer until \n is reached
 			int i=0;

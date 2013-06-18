@@ -24,7 +24,6 @@ int n;
 //Function to read rfid tag and find current location
 int getPosition(string rfid, int& x, int& y, Node* map)
 {
-	cout << "check: " << rfid << endl;
   //Loop through the map and find the rfid tag
   for(int i=0; i<m*n; i++) {
 	  //look for the rfid tag that matches the current position within the map
@@ -41,20 +40,22 @@ int getPosition(string rfid, int& x, int& y, Node* map)
   return -1;
 }
 
-string getRFID(int x, int y, Node* map){
+string getRFID(int x, int y, Node* map)
+{
 	return map[y*n+x].getRfid();
 }
 
-bool check(int x_cur, int y_cur, Node* map, string rfid){
+bool check(int x_cur, int y_cur, Node* map, string rfid)
+{
 	return getRFID(x_cur, y_cur, map).compare(rfid);
 }
 
 //update the current x,y position with the next move along the path
-void move( int& x, int& y, string path){
-	int i = path.at(0);
-
-	x += dx[i];
-	y += dy[i];
+void move( int& x, int& y, string path)
+{
+	//pull off the next move from the string path and convert to int
+	x += dx[path[0] - '0'];
+	y += dy[path[0] - '0'];
 	cout << "new move: " << x << " " << y << endl;
 }
 
@@ -138,7 +139,8 @@ string pathFind(Node* map, int& xStart, int& yStart, int& xFinish, int& yFinish,
 		    return generatePath(dir_map, xFinish, yFinish, xStart, yStart);
 		}
 
-		priority_queue<Node*, vector<Node*>, Less> node_options;  // nodes to go to next, sorted be priority
+		// nodes to go to next (available children), sorted be priority
+		priority_queue<Node*, vector<Node*>, Less> node_options;
 
 		//Node's x and y position
 		x_pos = node->getxPos();
@@ -212,8 +214,6 @@ string pathFind(Node* map, int& xStart, int& yStart, int& xFinish, int& yFinish,
 	  delete node; // garbage collection
     }
 
- //for debugging
-
 	//garbage collection
 	while(!possible_nodes.empty()){
 		Node* temp = new Node(possible_nodes.top());
@@ -247,7 +247,6 @@ string generatePath( int* dir_map, int xEnd, int yEnd, int xStart, int yStart)
 		cur_x += dx[dir_hold]*-1;
 		cur_y += dy[dir_hold]*-1;
 
-		cout << "path generating: " << std::to_string(dir_hold) << endl;
 		right_path.push(std::to_string(dir_hold));
 	}
 
