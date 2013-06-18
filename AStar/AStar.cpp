@@ -80,15 +80,12 @@ Node* getMap(int& t_s)
 		f >> hold_node[i].xPos >> hold_node[i].yPos >> hold_node[i].rfid;
 
 		//Sets wall to high priority
-		if(hold_node[i].rfid == "w")
-		{
+		if(hold_node[i].rfid == "w") {
 			hold_node[i].priority = 1000000;
 		}
-//cout << m[i].xPos << m[i].yPos << endl << m[i].rfid << endl;
 	}
 
 	cout << "Map  compiled!" << endl;
-
 	f.close();
 
 	return hold_node;
@@ -109,7 +106,7 @@ string pathFind(Node* map, int& xStart, int& yStart, int& xFinish, int& yFinish,
     stack<Node*> possible_nodes; 							// possible alternative nodes
     int* visited_nodes = new int[t_s]; 						// map of closed (tried-out) nodes
 	int* dir_map = new int[t_s];							//map of directions
-
+	int* prior_map = new int[t_s];							//map of priorities
     Node* node;
     int x_pos, y_pos, xdx, ydy, temp;
 
@@ -117,6 +114,7 @@ string pathFind(Node* map, int& xStart, int& yStart, int& xFinish, int& yFinish,
     for(int j=0; j < t_s; j++){
     	visited_nodes[j]=0;
     	dir_map[j]=-1;
+    	prior_map[j]=1000000;
     }
 
     // create the start node and push into list of open nodes
@@ -124,7 +122,8 @@ string pathFind(Node* map, int& xStart, int& yStart, int& xFinish, int& yFinish,
     node->updatePriority(xFinish, yFinish);
 
     //set the starting points direction to 9 to mark it
-    dir_map[xStart*m+yStart]=9;
+    dir_map[yStart*n+xStart]=9;
+    prior_map[yStart*n+xStart]=node->getPriority();
     possible_nodes.push(node);
 
     // A* search
@@ -132,8 +131,12 @@ string pathFind(Node* map, int& xStart, int& yStart, int& xFinish, int& yFinish,
     {
 		// get the current node w/ the highest priority
 		// from the list of open nodes
-		node = possible_nodes.front();
+		node = possible_nodes.top();
 		possible_nodes.pop();
+
+		if(node->getxPos() == xFinish && node->getyPos() == yFinish){
+		    return generatePath(dir_map, xFinish, yFinish, xStart, yStart);
+		}
 
 		priority_queue<Node*, vector<Node*>, Less> node_options;  // nodes to go to next, sorted be priority
 
@@ -141,10 +144,10 @@ string pathFind(Node* map, int& xStart, int& yStart, int& xFinish, int& yFinish,
 		x_pos = node->getxPos();
 		y_pos = node->getyPos();
 
-		visited_nodes[(x_pos * m) + y_pos] = 1;		// mark it on the closed nodes map
+		visited_nodes[(y_pos * n) + x_pos] = 1;		// mark it on the closed nodes map
 
    //for debugging
-   cout << "root: " << x_pos << " " << y_pos << endl;
+	cout << "root: " << x_pos << " " << y_pos << endl;
 
         // generate moves (child nodes) in all possible directions
         for(int i=0; i < DIR; i++)
@@ -157,7 +160,7 @@ string pathFind(Node* map, int& xStart, int& yStart, int& xFinish, int& yFinish,
             	continue;
 
             //Checks to see that node has not been seen before
-            if( visited_nodes[(xdx * m) + ydy] != 1 )
+            if( visited_nodes[(ydy*n)+xdx] != 1 )
             {
                 // generate a child node, update its level, priority, and record the direction from the parent
                 Node* child = new Node(xdx, ydy, node->getLevel(), node->getPriority(), i);
@@ -166,11 +169,6 @@ string pathFind(Node* map, int& xStart, int& yStart, int& xFinish, int& yFinish,
 
                 //push each possible child onto the node's direction queue
                 node_options.push(child);
-
-       //for debugging purposes
-       //cout << "position: " << xdx << " " << ydy
-                	// << " - priority, level, direction: " << child->priority
-                	// << " ; " << child->level << " ; " << child->dir << endl;
             }
         }
 
@@ -184,17 +182,24 @@ string pathFind(Node* map, int& xStart, int& yStart, int& xFinish, int& yFinish,
 				node_options.pop();
 
 				if(top->getPriority() == node_options.top()->getPriority()){
-					possible_nodes.push(top);
-					possible_nodes.push(node_options.top());
 
 					//update the direction map/array
-					dir_map[(node_options.top()->xPos*m)+node_options.top()->yPos] = node_options.top()->dir;
+					if(dir_map[(node_options.top()->yPos*n)+node_options.top()->xPos] == -1 ||
+							prior_map[(node_options.top()->yPos*n)+node_options.top()->xPos] <= node_options.top()->getPriority()){
+						dir_map[(node_options.top()->xPos*m)+node_options.top()->yPos] = node_options.top()->dir;
+						prior_map[(node_options.top()->xPos*m)+node_options.top()->yPos] = node_options.top()->getPriority();
+
+						possible_nodes.push(node_options.top());
+					}
 				}
 			}
 			//update the direction map/array
-			dir_map[(top->xPos*m)+top->yPos] = top->dir;
+			if(dir_map[(top->yPos*n)+top->xPos] == -1 || prior_map[(top->yPos*n)+top->xPos] <= top->getPriority() ){
+				dir_map[(top->yPos*n)+top->xPos] = top->dir;
+				prior_map[(top->yPos*n)+top->xPos] = top->getPriority();
 
-			possible_nodes.push(top);
+				possible_nodes.push(top);
+			}
 		}
 
 	  //garbage collection
@@ -207,9 +212,11 @@ string pathFind(Node* map, int& xStart, int& yStart, int& xFinish, int& yFinish,
 	  delete node; // garbage collection
     }
 
+ //for debugging
+
 	//garbage collection
 	while(!possible_nodes.empty()){
-		Node* temp = new Node(possible_nodes.front());
+		Node* temp = new Node(possible_nodes.top());
 		possible_nodes.pop();
 		delete temp;
 	}
