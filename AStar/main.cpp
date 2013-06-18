@@ -49,23 +49,6 @@ BOOL initComm(Serial* SP, OVERLAPPED osReader)
 	return FALSE;
 }
 
-BOOL read(Serial* SP, OVERLAPPED osReader, char* msg, int toRead)
-{
-	int readResult = 0;
-	BOOL finished = FALSE;
-
-	cout << "we will see this" << endl;
-	//blocking function call - should read until all is read off of the serial buffer
-	//and the expected array size (toRead) is reached
-	readResult = SP->ReadLine(msg,dataLength, osReader, toRead);
-
-	cout << "we might see this" << endl;
-	if(readResult >=0){
-		finished = TRUE;
-	}
-	return finished;
-}
-
 int main()
 {
 	BOOL fWaitingOnRead = TRUE;

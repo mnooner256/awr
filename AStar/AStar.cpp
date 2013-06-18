@@ -98,7 +98,7 @@ struct Less : public binary_function <Node,Node, bool>
 	//Overwriting comparison for priority queue based on Node's priorities
 	 bool operator ()(const Node* l, Node* r) const
 	 {
-		 return l->getPriority() < r->getPriority();
+		 return l->getPriority() > r->getPriority();
 	 }
 };
 
