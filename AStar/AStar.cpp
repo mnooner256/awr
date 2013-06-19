@@ -47,7 +47,7 @@ string getRFID(int x, int y, Node* map)
 
 bool check(int x_cur, int y_cur, Node* map, string rfid)
 {
-	return getRFID(x_cur, y_cur, map).compare(rfid);
+	return (getRFID(x_cur, y_cur, map).compare(rfid)==0);
 }
 
 //update the current x,y position with the next move along the path

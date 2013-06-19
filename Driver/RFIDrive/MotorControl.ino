@@ -14,17 +14,17 @@ int M1 = 8; //M1 Direction Control
 int M2 = 7; //M2 Direction Control
 
 int leftspeed = 150;
-int rightspeed = 150;
+int rightspeed = 140;
 
 void drive_motors(int dir) {
   if(abs(dir)>4)
     stop();
     
   else if(dir<0){
-    left (leftspeed,rightspeed, -dir*1500);
+    left (leftspeed,rightspeed, -dir*1000);
   }
   else {
-    right (leftspeed,rightspeed, dir*1500);
+    right (leftspeed,rightspeed, dir*1000);
   }
 }
 
