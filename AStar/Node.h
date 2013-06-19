@@ -1,7 +1,7 @@
 /***************************************************************
 Node Class for Map
 
-Created by: Francisco Ruiz
+Created by: Francisco Ruiz, Anna Shafer
 
 Needs to "hard-code" map data - only things that change should be start and end
 ***************************************************************/
@@ -14,12 +14,12 @@ class Node
 {
 public:
 
-    // current position
+    //current position
     int xPos;
     int yPos;
-    // total distance already traveled to reach the node
+    //total distance already traveled to reach the node
     int level;
-    // priority = level + remaining distance estimate (smaller is higher)
+    //priority = level + remaining distance estimate (smaller is higher)
     int priority;
     //rfid code
     string rfid;
@@ -32,19 +32,21 @@ public:
     	level = 0;
     	xPos = yPos = priority = -1;
 		rfid = "EMPTY";
-		dir=-1;
+		dir = -1;
 	}
 
+	//Constructor which initializaes all values but the rfid tag
     Node(int xp, int yp, int d, int p, int pardir)
     {
-    	xPos=xp;
-    	yPos=yp;
-    	level=d;
-    	priority=p;
+    	xPos = xp;
+    	yPos = yp;
+    	level = d;
+    	priority = p;
     	rfid = "EMPTY";
-		dir=pardir;
+		dir = pardir;
     }
 
+	//Copy constructor
     Node(Node* n)
     {
     	xPos = n->xPos;
@@ -55,6 +57,7 @@ public:
 		dir=n->dir;
     }
 
+	//Getters for various elements
     int getxPos() const
     {
     	return xPos;
@@ -80,16 +83,18 @@ public:
     	return rfid;
     }
 
+	//Updates priority dependent on destination
     void updatePriority(const int & xDest, const int & yDest)
     {
         priority = level + estimate(xDest, yDest);
     }
 
-    void nextLevel(int& i) // i: direction
+	//Updates level based on direction (passed as i)
+    void nextLevel(int& i) 
     {
     	//If direction is cardinal, level is 10.
-		//Otherwise, level is 20 (longer for diagonal).
-        level += (i %2 == 0?10:20);
+		//Otherwise, level is 20 (longer for diagonal). --> Should the level be 14? (ten times square root of 2)
+        level += (i % 2 == 0?10 : 20);
     }
 
     // Estimation function for the remaining distance to the goal.
@@ -97,16 +102,14 @@ public:
     {
         int xd, yd, d;
 
-        xd = xDest-xPos;
-        yd = yDest-yPos;
+        xd = xDest - xPos;
+        yd = yDest - yPos;
 
         //Distance Formula
         d = static_cast<int>(sqrt(xd * xd + yd * yd)*10);
 
         return d;
     }
-
-
 };
 
 #endif
