@@ -60,7 +60,7 @@ int main()
 
 	map = getMap(total_size);
 
-	x_end = 6; y_end = 6; x_start = y_start = 0;
+	x_end = 5; y_end = 5; x_start = y_start = 0;
 	x_cur = 0; y_cur = 0;
 
 	//perform handshake with the robot before trying to communicate
