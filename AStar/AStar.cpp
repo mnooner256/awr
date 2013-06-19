@@ -170,13 +170,18 @@ string pathFind(Node* map, int& xStart, int& yStart, int& xFinish, int& yFinish,
                 child->updatePriority(xFinish, yFinish);
 
                 //push each possible child onto the node's direction queue
-                node_options.push(child);
+                if(dir_map[(child->yPos*n)+child->xPos] == -1 || prior_map[(child->yPos*n)+child->xPos] >= child->getPriority() ){
+                	dir_map[(child->yPos*n)+child->xPos] = child->dir;
+             		prior_map[(child->yPos*n)+child->xPos] = child->getPriority();
+                    possible_nodes.push(child);
+                }
+             //   node_options.push(child);
             }
         }
 
 		// after having considered each of the possible directions, pull the top two children off the queue
 		// and check for a tie, otherwise push the child with the lowest priority (top) onto the possible nodes queue
-		if(!node_options.empty())
+/*		if(!node_options.empty())
 		{
 			Node* top = new Node(node_options.top());
 
@@ -203,7 +208,7 @@ string pathFind(Node* map, int& xStart, int& yStart, int& xFinish, int& yFinish,
 				possible_nodes.push(top);
 			}
 		}
-
+*/
 	  //garbage collection
 	  while(!node_options.empty()) {
 		  Node* temp = new Node(node_options.top());
