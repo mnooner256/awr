@@ -185,7 +185,10 @@ string pathFind(Node* map, int& xStart, int& yStart, int& xFinish, int& yFinish,
                 child->nextLevel(i);
                 child->updatePriority(xFinish, yFinish);
 
-                //push each possible child onto the node's direction queue
+                //Each child that has not been visited or is not a wall is then put into a stack
+                //of possible paths. The children's direction and priority are updated too.
+                //A child's direction and priority can only be updated if it's not been visited or the new priority
+                //Is lower than the last.
                 if(dir_map[(child->yPos*n)+child->xPos] == -1 || prior_map[(child->yPos*n)+child->xPos] >= child->getPriority() ){
                 	dir_map[(child->yPos*n)+child->xPos] = child->dir;
              		prior_map[(child->yPos*n)+child->xPos] = child->getPriority();
@@ -195,41 +198,7 @@ string pathFind(Node* map, int& xStart, int& yStart, int& xFinish, int& yFinish,
             }
         }
 
-		// after having considered each of the possible directions, pull the top two children off the queue
-		// and check for a tie, otherwise push the child with the lowest priority (top) onto the possible nodes queue
-/*		if(!node_options.empty())
-		{
-			//Pointer to keep track of best option
-			Node* top = new Node(node_options.top());
 
-			if(node_options.size() >= 2)
-			{
-				node_options.pop();
-
-				if(top->getPriority() == node_options.top()->getPriority())
-				{
-					//update the direction map/array
-					if(dir_map[(node_options.top()->yPos*n) + node_options.top()->xPos] == -1 ||
-							prior_map[(node_options.top()->yPos*n) + node_options.top()->xPos] <= node_options.top()->getPriority())
-					{
-						dir_map[(node_options.top()->xPos*m)+node_options.top()->yPos] = node_options.top()->dir;
-						prior_map[(node_options.top()->xPos*m)+node_options.top()->yPos] = node_options.top()->getPriority();
-
-						possible_nodes.push(node_options.top());
-					}
-				}
-			}
-
-			//update the direction map/array
-			if(dir_map[(top->yPos*n)+top->xPos] == -1 || prior_map[(top->yPos*n)+top->xPos] <= top->getPriority())
-			{
-				dir_map[(top->yPos*n)+top->xPos] = top->dir;
-				prior_map[(top->yPos*n)+top->xPos] = top->getPriority();
-
-				possible_nodes.push(top);
-			}
-		}
-*/
 	  //garbage collection
 	  while(!node_options.empty()) {
 		  Node* temp = new Node(node_options.top());
