@@ -1,64 +1,72 @@
-
-/*
-
-*/
-
-// Reference the I2C Library
 #include <Wire.h>
-// Reference the HMC5883L Compass Library
+
 #include <HMC5883L.h>
 
 #include <TimerOne.h>
 
-// Store our compass as a variable.
+/*
+ *  Timer1 library example
+ *  June 2008 | jesse dot tane at gmail dot com
+ */
+ // Store our compass as a variable.
 HMC5883L compass;
 // Record any errors that may occur.
 int error = 0;
 
 const int sample = 5;
+float avg[sample];
 int initFlag=0;
 float initHeading=0;
-float avg[sample];
 
+float heading;
+float avgheading;
+float goal;
 volatile float headingDegrees;
 
-// Out setup routine, here we will configure the microcontroller and compass.
 void setup()
 {
   //noInterrupts();
-  // Initialize the serial port.
+  pinMode(13, OUTPUT);
+  
   Serial.begin(9600);
   Serial.flush();
   
-  Serial.println("\nStarting the I2C interface.");
+  //Serial.println("\nStarting the I2C interface.");
   Wire.begin(); // Start the I2C interface.
 
-  Serial.println("Constructing new HMC5883L");
+  //Serial.println("Constructing new HMC5883L");
   compass = HMC5883L(); // Construct a new HMC5883 compass.
     
-  Serial.println("Setting scale to +/- 1.3 Ga");
+  //Serial.println("Setting scale to +/- 1.3 Ga");
   error = compass.SetScale(1.3); // Set the scale of the compass.
   if(error != 0) // If there is an error, print it out.
     Serial.println(compass.GetErrorText(error));
   
-  Serial.println("Setting measurement mode to continous.");
+  //Serial.println("Setting measurement mode to continous.");
   error = compass.SetMeasurementMode(Measurement_Continuous); // Set the measurement mode to Continuous
   if(error != 0) // If there is an error, print it out.
     Serial.println(compass.GetErrorText(error));
-  
-  Timer1.initialize(500000);         // initialize timer1, and set a 1/2 second period  
-  Timer1.attachInterrupt(ISR_correction);  // attaches correction() as a timer overflow interrupt
-  interrupts();
     
+  Timer1.initialize(5000000);         // initialize timer1, and set a 1/2 second period
+  Timer1.attachInterrupt(ISR_correction);  // attaches callback() as a timer overflow interrupt
+  interrupts();
 }
-
+ 
 void ISR_correction()
+{
+  digitalWrite(13, digitalRead(13) ^ 1);
+  
+  
+  //Serial.println(headingDegrees);
+}
+ 
+void loop()
 {
   // Retrived the scaled values from the compass (scaled to the configured scale).
   MagnetometerScaled scaled = compass.ReadScaledAxis();
   
   // Calculate heading when the magnetometer is level, then correct for signs of axis.
-  float heading = atan2(scaled.YAxis, scaled.XAxis);
+  heading = atan2(scaled.YAxis, scaled.XAxis);
   
   // Once you have your heading, you must then add your 'Declination Angle', which is the 'Error' of the magnetic field in your location.
   // Find yours here: http://www.magnetic-declination.com/ If you cannot find your Declination, comment out these two lines, your compass will be slightly off.
@@ -66,11 +74,13 @@ void ISR_correction()
   heading += declinationAngle;
   
   // Convert radians to degrees for readability.
-   headingDegrees = heading * (180/M_PI); 
+  headingDegrees = heading * (180/M_PI); 
   
   // Check for initial reading
   if(initFlag==0) {
     initHeading = headingDegrees;
+    Serial.print("heading: ");
+    Serial.println(initHeading);
     initFlag = 1;
   }
   else
@@ -84,32 +94,12 @@ void ISR_correction()
   // Check for wrap due to addition of declination.
   if(headingDegrees > 360)
     headingDegrees -= 360;
-   
-}
-
-// Our main program loop.
-void loop()
-{  
-  // Output the data via the serial port.
-  Output(headingDegrees);
-  // Normally we would delay the application by 66ms to allow the loop
-  // to run at 15Hz (default bandwidth for the HMC5883L).
-  // However, since we have a long serial out (104ms at 9600), we will let 
-  // it run at its natural speed.
-  //delay(500);
-}
-
-// Output the data down the serial port.
-void Output(float headingDegrees)
-{
-   Serial.print("   \tHeading:\t");
-   Serial.print(headingDegrees);
-   Serial.print(" Degrees   \t");
-   
-//   int pos = CalcAvg(headingDegrees);
-//   Serial.print("   \tAverage:\t");
-//   Serial.print(pos);
-//   Serial.println(" Degrees   \t");
+  
+  avgheading = CalcAvg(headingDegrees);
+  
+  //if( abs(headingDegrees-avgheading*(180/M_PI))>=3 ) {
+      Serial.println(headingDegrees);
+  //}
 }
 
 float CalcAvg(float headingDegrees)
@@ -124,3 +114,4 @@ float CalcAvg(float headingDegrees)
    
    return (total/sample);
 }
+ 

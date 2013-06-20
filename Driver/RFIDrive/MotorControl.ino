@@ -16,11 +16,18 @@ int M2 = 7; //M2 Direction Control
 int leftspeed = 150;
 int rightspeed = 140;
 
+// ISR for error correction
+void Correction()
+{
+  digitalWrite(13, digitalRead(13) ^ 1);
+  
+}
+
 void drive_motors(int dir) {
-  if(abs(dir)>4)
-    stop();
-    
-  else if(dir<0){
+  
+  if(dir>=8)
+    stop();  
+  else if(dir<4){
     left (leftspeed,rightspeed, -dir*1000);
   }
   else {
