@@ -1,4 +1,3 @@
-#include <TimerOne.h>
 #include <SoftwareSerial.h>
 // Reference the I2C Library
 #include <Wire.h>
@@ -12,12 +11,15 @@ int error = 0;
 
 const int sample = 5;
 int initFlag=0;
-float initHeading=0;
+float initHeading;
 float avg[sample];
 float heading;
-float avgheading;
+volatile float avgheading;
 float goal;
-volatile float headingDegrees;
+
+//8 points of the compass starting with E = 0 (degrees) 0, 315, 270, 225, 180, 135, 90, 45
+const float compassPoint[8] = {0, PI*7/4, PI*3/2, PI*5/4,
+                          PI, PI*3/4, PI/2, PI/4};
 
 SoftwareSerial id20(3,4); // virtual serial port(RX,TX) for RFID reader
 char tag[100];
@@ -47,10 +49,7 @@ void setup()
   error = compass.SetMeasurementMode(Measurement_Continuous); // Set the measurement mode to Continuous
   if(error != 0) // If there is an error, print it out.
     Serial.println(compass.GetErrorText(error));
-    
-  Timer1.initialize(5000000);         // initialize timer1, and set a 1/2 second period
-  Timer1.attachInterrupt(Correction);  // attaches callback() as a timer overflow interrupt
-  
+
   //initialize the LED for confirmation
   pinMode(13, OUTPUT);
   digitalWrite(13, LOW);
@@ -64,8 +63,6 @@ void setup()
     digitalWrite(13, HIGH);
     hand_flag = 1; //if handshake was successful, set flag
   }
-  
-  interrupts();  //enable interrupts now that the setup is complete
 }
 
 void loop()
@@ -73,7 +70,7 @@ void loop()
   //begin program only if serial communication setup was successful
   //if(hand_flag ==  1){
     //scan_rfid();
-    read_from_compass();
+    avgheading = read_from_compass();
     read_from_controller();
   //}
 }
@@ -104,12 +101,12 @@ void read_from_controller()
     char temp = Serial.read();
     dir = temp-'0';
    
-    drive_motors(dir);
+    drive(dir);
       
   }
 }
 
-void read_from_compass()
+float read_from_compass()
 {
   // Retrieve the scaled values from the compass
   MagnetometerScaled scaled = compass.ReadScaledAxis();
@@ -121,29 +118,30 @@ void read_from_compass()
   // Find yours here: http://www.magnetic-declination.com/ If you cannot find your Declination, comment out these two lines, your compass will be slightly off.
   float declinationAngle = 0.01367;
   heading += declinationAngle;
-  
+
   // Convert radians to degrees for readability.
-  //headingDegrees = heading * (180/M_PI); 
+  //heading = heading * (180/M_PI); 
   
   // Check for initial reading
   if(initFlag==0) {
     initHeading = heading;
     initFlag = 1;
   }
-  else
+  else {
     // Convert all subsequent readings to be relative to the initial reading.
     heading -= initHeading;
-
+  }
+  
   // Correct for when signs are reversed.
-  if(heading < 0) heading += 2*M_PI;
+  if(heading < 0) 
+    heading += 2*PI;
     
   // Check for wrap due to addition of declination.
-  if(heading > 2*M_PI) heading -= 2*M_PI;
-  
+  if(heading > 2*PI)
+    heading -= 2*PI;
+      
   //keep a running average of the last several reads to eliminate spikes
-  avgheading = CalcAvg(heading);
-  
-  Serial.println(heading*180/M_PI);
+  return avgheading = CalcAvg(heading);
 }
 
 float CalcAvg(float heading)
