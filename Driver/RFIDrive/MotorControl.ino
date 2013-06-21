@@ -29,13 +29,14 @@ void drive(int dir) {
      
       //if the relative heading differs from the goal by more than 5 degrees
       //if error is greater than pi (180 degrees), then it is shorter to turn the other way
-      if( drift <= -.08727 && abs(drift) < M_PI ) 
-        left (leftspeed,rightspeed);    //turn left
+      if( drift <= -.08727 || abs(drift) > M_PI ) 
+        right (leftspeed,rightspeed);    //turn left
       else  
-        right (leftspeed,rightspeed);   //turn right
+        left (leftspeed,rightspeed);   //turn right
         
       //update position to check heading
       avgheading = read_from_compass();
+      Serial.println(avgheading*180/PI);
       drift = avgheading-goal;
     }
     //once heading is correct, continue forward

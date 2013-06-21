@@ -17,9 +17,8 @@ float heading;
 volatile float avgheading;
 float goal;
 
-//8 points of the compass starting with E = 0 (degrees) 0, 315, 270, 225, 180, 135, 90, 45
-const float compassPoint[8] = {0, PI*7/4, PI*3/2, PI*5/4,
-                          PI, PI*3/4, PI/2, PI/4};
+//8 points of the compass starting with E = 0 (degrees) 0, 45, 90, 135, 180, 225, 270, 315
+const float compassPoint[8] = {0, PI/4, PI/2, PI*3/4, PI, PI*5/4, PI*3/2, PI*7/4};
 
 SoftwareSerial id20(3,4); // virtual serial port(RX,TX) for RFID reader
 char tag[100];
@@ -141,7 +140,7 @@ float read_from_compass()
     heading -= 2*PI;
       
   //keep a running average of the last several reads to eliminate spikes
-  return avgheading = CalcAvg(heading);
+  return avgheading = heading;// CalcAvg(heading);
 }
 
 float CalcAvg(float heading)

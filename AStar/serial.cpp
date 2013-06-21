@@ -82,6 +82,7 @@ int Serial::ReadData(char *buffer, unsigned int nbChar, OVERLAPPED osReader)
     //Number of bytes we'll really ask to read
     unsigned int toRead;
 
+
     //Use the ClearCommError function to get status info on the Serial port
     if(ClearCommError(this->serialArd, &this->errors, &this->status) ==0) {
     	//Throw an exception for the error
@@ -95,14 +96,17 @@ int Serial::ReadData(char *buffer, unsigned int nbChar, OVERLAPPED osReader)
         //of characters, if not we'll read only the available characters to prevent
         //locking of the application.
         if(this->status.cbInQue>nbChar) {
+
             toRead = nbChar;
         }
         else {
             toRead = this->status.cbInQue;
+
         }
 
         //Try to read the require number of chars, and return the number of read bytes on success
         if(ReadFile(this->serialArd, buffer, toRead, &bytesRead, &osReader) && bytesRead != 0) {
+
 			return bytesRead;
         }
 
@@ -119,26 +123,33 @@ int Serial::ReadLine(char *buffer, unsigned int nbChar, OVERLAPPED osReader, int
 
 	//Read in and concatenate new data on buffer until expected size is reached
 	while(strlen(buffer)<toRead)  {
+		//std::cout << "mudkip" << std::endl;
 
 		//Read in new data
 		readStat = ReadData(buf,nbChar, osReader);
 
 		if( readStat>0 ){
+
 			//Store new data into buffer until \n is reached
 			int i=0;
 			while( i<readStat && buf[i] != '\n'){
+
 				buffer[i+offset] = buf[i++];
 			}
 			//Concatenate NULL on end to form Cstring
 			buffer[i+offset]=NULL;
 
 			//Save remaining data in class buf for later
+
 			memmove (buf,buf+i,readStat-i);
 			//clear the rest of the class buffer
+
 			memset (buf+(readStat-i),'\0',readStat);
+
 
 			//update offset to keep data in buffer to be added to until expected size is reached
 			offset= strlen(buffer);
+
 		}
 	}
 
