@@ -26,7 +26,7 @@ BOOL initComm(Serial* SP, OVERLAPPED osReader)
 {
 	//Check whether the Serial Port connected successfully
 	if (SP->IsConnected()) {
-		std::cout <<"Com port connected\n";
+		std::cout <<"Com port connected." << endl;
 
 		//Create event handle for oberlapping
 		osReader.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
@@ -38,17 +38,44 @@ BOOL initComm(Serial* SP, OVERLAPPED osReader)
 		if(SP->ReadLine(temp,dataLength, osReader, 1)){
 			if(temp[0]=='H') {
 				if(SP->WriteData(temp,strlen(temp),osReader)){
-					std::cout<< "Connected to the Arduino.\n";
+					std::cout<< "Connected to the Arduino." << endl;
 					return TRUE;
 				}
-				else std::cout << "Could not send ACK.\n";
+				else std::cout << "Could not send ACK." << endl;
 			}
 			else std::cout << "Did not receive proper msg: " << temp <<std::endl;
 		}
 	}
 	return FALSE;
 }
+int read(Serial* SP, OVERLAPPED osReader, char* msg, int toRead){
 
+	int length = SP->ReadLine(msg,dataLength, osReader, toRead);
+	//msg[length+1]='\0';
+
+	cout << "readline: " << msg << endl;
+	if(length > toRead){
+		if(msg[0] != 'R' || msg[1] != ':') {
+			length = SP->ReadLine(msg,dataLength, osReader, toRead);
+		}
+		else {
+			for( int i=2; i<strlen(msg); i++){
+				if( (int)msg[i] < 30 ||(int)msg[i] > 39){
+					for(int j=i; j<strlen(msg)-2; j++){
+						msg[j] = msg[j+1];
+						cout << "cleaning: " << msg << endl;
+					}
+					msg[14]='\0';
+					cout << "cleaned: " << msg << endl;
+
+				}
+			}
+		}
+	}
+
+	cout << "length: " << strlen(msg) << endl;
+	return strlen(msg);
+}
 int main()
 {
 	BOOL fWaitingOnRead = TRUE;
@@ -74,8 +101,7 @@ int main()
 				if(fWaitingOnRead) {
 
 					char msg[dataLength] = "";
-
-					if(SP->ReadLine(msg,dataLength, osReader, 14)>0) {
+					if(read(SP, osReader, msg, 14) == 14) {
 
 
 		//for debugging
@@ -90,6 +116,7 @@ int main()
 						else if(!check(x_cur, y_cur, map, rfid)) {
 							cout << "unexpected position. Recalculating...." << endl;
 							getPosition( rfid, x_cur, y_cur, map);
+				    		cout << "Current position: " << x_cur << " " << y_cur << endl;
 							path = pathFind(map, x_cur, y_cur, x_end, y_end, total_size);
 						}
 						else
@@ -116,6 +143,7 @@ int main()
 
 		}
 
+		// At the end, send a stop signal and make output
 		if(SP->IsConnected()) {
 			if(!fWaitingOnRead) {
 				char array[2] = {16, '\0'};

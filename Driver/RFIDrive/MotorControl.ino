@@ -16,31 +16,15 @@ int M2 = 7; //M2 Direction Control
 int leftspeed = 150;
 int rightspeed = 140;
 
-void drive(int dir) {
-  
-  if(dir >= 8)
-    stop();  
-  else 
-  {
-    goal = compassPoint[dir];
+void drive_motors(int dir) {
+  if(abs(dir)>4)
+    stop();
     
-    float drift = avgheading-goal;
-    while( abs(drift) >= .08727){
-     
-      //if the relative heading differs from the goal by more than 5 degrees
-      //if error is greater than pi (180 degrees), then it is shorter to turn the other way
-      if( drift <= -.08727 || abs(drift) > M_PI ) 
-        right (leftspeed,rightspeed);    //turn left
-      else  
-        left (leftspeed,rightspeed);   //turn right
-        
-      //update position to check heading
-      avgheading = read_from_compass();
-      Serial.println(avgheading*180/PI);
-      drift = avgheading-goal;
-    }
-    //once heading is correct, continue forward
-    forward (leftspeed,rightspeed); 
+  else if(dir<0){
+    left (leftspeed,rightspeed, -dir*1000);
+  }
+  else {
+    right (leftspeed,rightspeed, dir*1000);
   }
 }
 
@@ -56,18 +40,25 @@ void forward(char a,char b)
  analogWrite (E2,b);
  digitalWrite(M2,LOW);
 }
-void left (char a,char b)
+void left (char a,char b, int time)
 {
+   unsigned long initTime = millis();
    analogWrite (E1,a);
    digitalWrite(M1,HIGH);
    analogWrite (E2,b);
    digitalWrite(M2,LOW);
+   while(millis() <= initTime+time){ }
+   
+   digitalWrite(M1,LOW);
 }
-void right (char a,char b)
+void right (char a,char b, int time)
 {  
+   unsigned long initTime = millis();
    analogWrite (E1,a);
    digitalWrite(M1,LOW);
    analogWrite (E2,b);
    digitalWrite(M2,HIGH);
+   while(millis() <= initTime+time){ }
+   
+   digitalWrite(M2,LOW);
 }
-

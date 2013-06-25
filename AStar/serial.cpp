@@ -120,15 +120,17 @@ int Serial::ReadLine(char *buffer, unsigned int nbChar, OVERLAPPED osReader, int
 {
 	int offset= 0;
 	int readStat=-1;
+	int length=0;
 
 	//Read in and concatenate new data on buffer until expected size is reached
 	while(strlen(buffer)<toRead)  {
-		//std::cout << "mudkip" << std::endl;
 
 		//Read in new data
 		readStat = ReadData(buf,nbChar, osReader);
 
 		if( readStat>0 ){
+
+			length+= readStat;
 
 			//Store new data into buffer until \n is reached
 			int i=0;
@@ -140,21 +142,17 @@ int Serial::ReadLine(char *buffer, unsigned int nbChar, OVERLAPPED osReader, int
 			buffer[i+offset]=NULL;
 
 			//Save remaining data in class buf for later
-
 			memmove (buf,buf+i,readStat-i);
 			//clear the rest of the class buffer
-
 			memset (buf+(readStat-i),'\0',readStat);
-
 
 			//update offset to keep data in buffer to be added to until expected size is reached
 			offset= strlen(buffer);
-
 		}
 	}
 
     //If nothing has been read or an error was detected, return -1
-	return readStat;
+	return length;
 }
 
 bool Serial::WriteData(char *buffer, unsigned int nbChar, OVERLAPPED osReader)
