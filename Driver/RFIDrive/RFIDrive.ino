@@ -3,7 +3,7 @@
 SoftwareSerial id20(3,4); // virtual serial port(RX,TX) for RFID reader
 char tag[100];
 int dir = 6;
-char* hand_var = "H\n"; //Serial comm handshake variable
+char* hand_var = "H~"; //Serial comm handshake variable
 int hand_flag = 0; //flag for successful handshake/setup
 
 void setup()
@@ -72,14 +72,15 @@ void read_from_controller(){
 void scan_rfid() {
   int bytes = 0;
   if (id20.available() > 0) {
-    bytes = id20.readBytesUntil(13, tag, sizeof(tag));
     
-    Serial.print('R');
-    Serial.print(':');
-    for ( int i = 1; i < bytes; i++) {
-      Serial.print(tag[i]);
-    }
-    Serial.print('\n');
+    tag[0] ='R';
+    tag[1] =':';
+    bytes = id20.readBytesUntil(12, tag+2, sizeof(tag));
+    tag[15]='~';
+   // for ( int i = 0; i < bytes+2; i++) {
+      Serial.print(tag);
+    //}
+   // Serial.print('\n');
     Serial.flush();
     
     //Read off the closing two bytes constant of the RFID

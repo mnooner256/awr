@@ -48,32 +48,64 @@ BOOL initComm(Serial* SP, OVERLAPPED osReader)
 	}
 	return FALSE;
 }
-int read(Serial* SP, OVERLAPPED osReader, char* msg, int toRead){
+int read(Serial* SP, OVERLAPPED osReader, char* msg, int toRead)
+{
+	bool IDnum = true;
 
-	int length = SP->ReadLine(msg,dataLength, osReader, toRead);
-	//msg[length+1]='\0';
+	SP->ReadLine(msg,dataLength, osReader, toRead);
 
 	cout << "readline: " << msg << endl;
-	if(length > toRead){
-		if(msg[0] != 'R' || msg[1] != ':') {
-			length = SP->ReadLine(msg,dataLength, osReader, toRead);
-		}
-		else {
-			for( int i=2; i<strlen(msg); i++){
-				if( (int)msg[i] < 30 ||(int)msg[i] > 39){
-					for(int j=i; j<strlen(msg)-2; j++){
-						msg[j] = msg[j+1];
-						cout << "cleaning: " << msg << endl;
-					}
-					msg[14]='\0';
-					cout << "cleaned: " << msg << endl;
+	cout << "msg length: " << strlen(msg) << endl;
 
+	while(strlen(msg)!= toRead){
+		if(strlen(msg) >= toRead){
+			cout << "testing first 2" << endl;
+			if(msg[0] == 'R' && msg[1] == ':' ) {
+				cout << "first part right" << endl;
+				for ( int i=2; i<=toRead; i++){
+					if( msg[i] < 48 || msg[i] > 70 )
+						IDnum = false;
+				}
+				if(IDnum == false) {
+					for( int i=2; i<strlen(msg); i++){
+						if( msg[i] < 48 || msg[i] > 70){
+							for(int j=i; j<strlen(msg); j++){
+								msg[j] = msg[j+1];
+							}
+							msg[strlen(msg)]='\0';
+						}
+					}
+					cout << "cleaned: " << msg << endl;
 				}
 			}
+			else {
+				char* begin = strchr(msg, 'R');
+				int j=0;
+				for(int i=begin-msg; i<strlen(msg); i++){
+					msg[j]=msg[i];
+					j++;
+				}
+				msg[strlen(msg)-(begin-msg)]='\0';
+				cout << "found new start " << msg  << endl;
+			}
+
+		}
+		else if(strlen(SP->buf) >1){
+			for( int i=0; i<strlen(SP->buf); i++ ){
+				msg[strlen(msg)+1]='\0';
+				msg[strlen(msg)]=SP->buf[i];
+			}
+		}
+		else {
+			char temp[25];
+			cout << "gathering more" << endl;
+			if( SP->ReadLine(temp,dataLength, osReader, toRead-strlen(msg))>0)
+				cout << "successful read" << endl;
+			cout << "temp length: " << strlen(temp) << endl;
+			strcat(msg, temp);
 		}
 	}
-
-	cout << "length: " << strlen(msg) << endl;
+	cout << "msg length: " << strlen(msg) << endl;
 	return strlen(msg);
 }
 int main()
@@ -97,27 +129,40 @@ int main()
 
 			//Check for and read in RFID tags
 			if(SP->IsConnected()) {
-
 				if(fWaitingOnRead) {
 
 					char msg[dataLength] = "";
 					if(read(SP, osReader, msg, 14) == 14) {
-
 
 		//for debugging
 		std::cout << "read: " << msg << std::endl;
 
 						rfid = msg;
 						if( path.empty() ){
-							getPosition( rfid, x_start, y_start, map);
-							x_cur = x_start; y_cur = y_start;
-							path = pathFind(map, x_start, y_start, x_end, y_end, total_size);
+							if(getPosition( rfid, x_start, y_start, map)>=0) {
+								x_cur = x_start; y_cur = y_start;
+								path = pathFind(map, x_start, y_start, x_end, y_end, total_size);
+							}
+							else {
+								cout << "Error: position not in map." << endl;
+								SP->~Serial();
+								delete SP;
+							    return 0;
+							}
 						}
 						else if(!check(x_cur, y_cur, map, rfid)) {
 							cout << "unexpected position. Recalculating...." << endl;
-							getPosition( rfid, x_cur, y_cur, map);
-				    		cout << "Current position: " << x_cur << " " << y_cur << endl;
-							path = pathFind(map, x_cur, y_cur, x_end, y_end, total_size);
+							if( getPosition( rfid, x_cur, y_cur, map) >=0 ) {
+								cout << "Current position: " << x_cur << " " << y_cur << endl;
+								path = pathFind(map, x_cur, y_cur, x_end, y_end, total_size);
+							}
+							else {
+								cout << "Error: position not in map. 2" << endl;
+								//send stop and exit
+								SP->~Serial();
+								delete SP;
+							    return 0;
+							}
 						}
 						else
 							path = path.substr(1,path.length()-1);
@@ -126,20 +171,23 @@ int main()
 					}
 				}
 			}
+			else
+				cout << "communication error 1" << endl;
 
 			//Send instructions as a single char to the robot
 			if(SP->IsConnected()) {
-				if(!fWaitingOnRead) {
+				cout << "writing..." << endl;
+ 				if(!fWaitingOnRead) {
 					char array[2] = {path[0], '\0'};
 					if(SP->WriteData(array,strlen(array),osReader)){
 						cout << "direction: " << array << endl;
 						move( x_cur, y_cur, path);
-
 						fWaitingOnRead = TRUE;
-
 					}
 				}
 			}
+			else
+				cout << "communication error 2" << endl;
 
 		}
 
@@ -150,14 +198,17 @@ int main()
 				if(SP->WriteData(array,strlen(array),osReader))
 					cout << "Escaped!" << endl;
 			}
-			else
-				cout << "end is reached" << endl;
 		}
+		else
+			cout << "end is reached" << endl;
 
 	}
-	else
+	else {
 		cout<< "Communication error!" << endl;
+		SP->~Serial();
+	}
 
+	cout << "are you seeing this" << endl;
 	delete SP;
     return 0;
 }

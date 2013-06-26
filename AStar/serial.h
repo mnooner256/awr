@@ -17,9 +17,10 @@ class Serial
         bool connected;		//Connection status
         COMSTAT status;		//Get various information about the connection
         DWORD errors;		//Keep track of last error
-        char buf[256];
 
     public:
+
+        char buf[256];
         //Initialize Serial communication with the given COM port
         Serial(char *portName);
         //Close the connection

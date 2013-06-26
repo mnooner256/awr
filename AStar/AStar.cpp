@@ -34,7 +34,7 @@ int getPosition(string rfid, int& x, int& y, Node* map)
     		x = i % n;
     		y = i / m;
 
-    		cout << "Current position: " << x << " " << y << endl;
+    		cout << "New current position: " << x << " " << y << endl;
 
 			return i;
 	    }
@@ -165,7 +165,7 @@ string pathFind(Node* map, int& xStart, int& yStart, int& xFinish, int& yFinish,
 		visited_nodes[(y_pos * n) + x_pos] = 1;		
 
 		//for debugging
-		cout << "root: " << x_pos << " " << y_pos << endl;
+		//cout << "root: " << x_pos << " " << y_pos << endl;
 
         // generate moves (child nodes) in all possible directions
         for(int i=0; i < DIR; i++)

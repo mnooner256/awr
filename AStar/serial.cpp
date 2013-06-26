@@ -96,17 +96,14 @@ int Serial::ReadData(char *buffer, unsigned int nbChar, OVERLAPPED osReader)
         //of characters, if not we'll read only the available characters to prevent
         //locking of the application.
         if(this->status.cbInQue>nbChar) {
-
             toRead = nbChar;
         }
         else {
             toRead = this->status.cbInQue;
-
         }
 
         //Try to read the require number of chars, and return the number of read bytes on success
         if(ReadFile(this->serialArd, buffer, toRead, &bytesRead, &osReader) && bytesRead != 0) {
-
 			return bytesRead;
         }
 
@@ -123,7 +120,7 @@ int Serial::ReadLine(char *buffer, unsigned int nbChar, OVERLAPPED osReader, int
 	int length=0;
 
 	//Read in and concatenate new data on buffer until expected size is reached
-	while(strlen(buffer)<toRead)  {
+	while(buffer[strlen(buffer)-1]!= '~')  {
 
 		//Read in new data
 		readStat = ReadData(buf,nbChar, osReader);
@@ -134,10 +131,11 @@ int Serial::ReadLine(char *buffer, unsigned int nbChar, OVERLAPPED osReader, int
 
 			//Store new data into buffer until \n is reached
 			int i=0;
-			while( i<readStat && buf[i] != '\n'){
-
+			while( i<readStat && buf[i] != '~'){
 				buffer[i+offset] = buf[i++];
 			}
+			if( buf[i] == '~')
+				buffer[i+offset] = buf[i++];
 			//Concatenate NULL on end to form Cstring
 			buffer[i+offset]=NULL;
 
@@ -151,7 +149,7 @@ int Serial::ReadLine(char *buffer, unsigned int nbChar, OVERLAPPED osReader, int
 		}
 	}
 
-    //If nothing has been read or an error was detected, return -1
+    //If nothing has been read or an error was detected, return 0
 	return length;
 }
 
