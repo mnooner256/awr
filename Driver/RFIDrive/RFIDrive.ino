@@ -42,26 +42,22 @@ void loop()
 void read_from_controller(){
   if(Serial.available() >0){
     //read in the new direction command and convert to int
-    char temp = Serial.read();
+    long temp = Serial.read();
     int var = temp-'0';
     
-    if(var==0 && dir ==7){
-      drive_motors(-1);
-    }
-    else {
       dir = var - dir;
       
       if(abs(dir) >4){
         //new direction relative to previous direction
         if(dir<0){
-          drive_motors(-dir-4);
+          drive_motors(dir+8);
         }
         else
-          drive_motors(-dir+4);
+          drive_motors(dir-8);
       }
       else
         drive_motors(dir);
-    }
+
       
     //reset direction to the command that was received  
     dir = var;

@@ -13,18 +13,20 @@ int E2 = 5; //M2 Speed Control
 int M1 = 8; //M1 Direction Control
 int M2 = 7; //M2 Direction Control
 
-int leftspeed = 150;
-int rightspeed = 140;
+int leftspeed = 100;
+int rightspeed = 90;//138;
 
-void drive_motors(int dir) {
-  if(abs(dir)>4)
+void drive_motors(int cmd) {
+  
+  if(abs(cmd)>4){
     stop();
+  }
     
-  else if(dir<0){
-    left (leftspeed,rightspeed, -dir*1000);
+  else if(cmd<0){
+    left (leftspeed,rightspeed, -cmd*925);
   }
   else {
-    right (leftspeed,rightspeed, dir*1000);
+    right (leftspeed,rightspeed, cmd*990);
   }
 }
 

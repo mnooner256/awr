@@ -173,28 +173,48 @@ string pathFind(Node* map, int& xStart, int& yStart, int& xFinish, int& yFinish,
             xdx = x_pos + dx[i];
             ydy = y_pos + dy[i];
 
-            //Short-circuit at the edges of the map or if it is a wall
-            if (xdx > n-1 || xdx < 0 || ydy < 0 || ydy > m-1 || map[(ydy*n)+xdx].getPriority() == 1000000)
-            	continue;
+            int nodeFound = 0;
+            while(nodeFound == 0){
 
-            //Checks to see that node has not been seen before
-            if(visited_nodes[(ydy*n)+xdx] != 1 )
-            {
-                //generate a child node, update its level, priority, and record the direction from the parent
-                Node* child = new Node(xdx, ydy, node->getLevel(), node->getPriority(), i);
-                child->nextLevel(i);
-                child->updatePriority(xFinish, yFinish);
+				//Short-circuit at the edges of the map or if it is a wall
+				if (xdx > n-1 || xdx < 0 || ydy < 0 || ydy > m-1 || map[(ydy*n)+xdx].getPriority() == 1000000){
+					nodeFound = 1;
+					continue;
+				}
+				else{
+					if(map[(ydy*n)+xdx].getRfid().compare("e") == 0){
+						xdx = xdx+dx[i];
+						ydy = ydy+dy[i];
+					}
+					else{
+					//Checks to see that node has not been seen before
+						if(visited_nodes[(ydy*n)+xdx] != 1 )
+						{
+							//generate a child node, update its level, priority, and record the direction from the parent
+							Node* child = new Node(xdx, ydy, node->getLevel(), node->getPriority(), i);
+							child->nextLevel(i);
+							child->updatePriority(xFinish, yFinish);
 
-                //Each child that has not been visited or is not a wall is then put into a stack
-                //of possible paths. The children's direction and priority are updated too.
-                //A child's direction and priority can only be updated if it's not been visited or the new priority
-                //Is lower than the last.
-                if(dir_map[(child->yPos*n)+child->xPos] == -1 || prior_map[(child->yPos*n)+child->xPos] >= child->getPriority() ){
-                	dir_map[(child->yPos*n)+child->xPos] = child->dir;
-             		prior_map[(child->yPos*n)+child->xPos] = child->getPriority();
-                    possible_nodes.push(child);
-                }
-             //   node_options.push(child);
+							//Each child that has not been visited or is not a wall is then put into a stack
+							//of possible paths. The children's direction and priority are updated too.
+							//A child's direction and priority can only be updated if it's not been visited or the new priority
+							//Is lower than the last.
+							if(dir_map[(child->yPos*n)+child->xPos] == -1 || prior_map[(child->yPos*n)+child->xPos] >= child->getPriority() ){
+								dir_map[(child->yPos*n)+child->xPos] = child->dir;
+								prior_map[(child->yPos*n)+child->xPos] = child->getPriority();
+								possible_nodes.push(child);
+								nodeFound = 1;
+							}
+							else{
+								nodeFound = 1;
+							}
+						 //   node_options.push(child);
+						}
+						else{
+							nodeFound = 1;
+						}
+					}
+				}
             }
         }
 
@@ -205,7 +225,6 @@ string pathFind(Node* map, int& xStart, int& yStart, int& xFinish, int& yFinish,
 		  node_options.pop();
 		  delete temp;
 	  }
-
 		delete node; // garbage collection
 	}
 
@@ -233,19 +252,28 @@ string generatePath( int* dir_map, int xEnd, int yEnd, int xStart, int yStart)
 	int cur_x;
 	int cur_y;
 	int dir_hold;
+	int old_hold;
 
 	cur_x = xEnd;
 	cur_y = yEnd;
 
+
 	//Generates the path from finish to start (stops at starting position)
 	while(cur_x!=xStart || cur_y!=yStart)
 	{
+
 		dir_hold = dir_map[(cur_y*n)+cur_x];
 
-		cur_x += dx[dir_hold] * -1;
-		cur_y += dy[dir_hold] * -1;
-
-		right_path.push(std::to_string(dir_hold));
+		if(dir_hold != -1){
+		  cur_x += dx[dir_hold] * -1;
+		  cur_y += dy[dir_hold] * -1;
+		  old_hold = dir_hold;
+		  right_path.push(std::to_string(dir_hold));
+		}
+		else{
+			cur_x += dx[old_hold] * -1;
+			cur_y += dy[old_hold] * -1;
+		}
 	}
 
 	//Places path into the string

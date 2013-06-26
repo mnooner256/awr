@@ -129,7 +129,7 @@ int Serial::ReadLine(char *buffer, unsigned int nbChar, OVERLAPPED osReader, int
 
 			length+= readStat;
 
-			//Store new data into buffer until \n is reached
+			//Store new data into buffer until ~ is reached
 			int i=0;
 			while( i<readStat && buf[i] != '~'){
 				buffer[i+offset] = buf[i++];
