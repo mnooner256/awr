@@ -60,7 +60,6 @@ void clean ( char* msg )
 			msg[strlen(msg)]='\0';
 		}
 	}
-	cout << "cleaned: " << msg << endl;
 }
 
 bool RFIDcheck ( char* msg, int toRead )
@@ -84,9 +83,6 @@ bool read(Serial* SP, OVERLAPPED osReader, char* msg, int toRead)
 {
 	SP->ReadLine(msg,dataLength, osReader, toRead);
 
-	cout << "readline: " << msg << endl;
-	cout << "msg length: " << strlen(msg) << endl;
-
 	if(msg[0] != 'R' && msg[1] != ':') {
 		char* begin = strchr(msg, 'R');
 		int j=0;
@@ -95,26 +91,55 @@ bool read(Serial* SP, OVERLAPPED osReader, char* msg, int toRead)
 			j++;
 		}
 		msg[strlen(msg)-(begin-msg)]='\0';
-		cout << "found new start " << msg  << endl;
 	}
 	clean(msg);
 
 	if(!RFIDcheck(msg, toRead)) {
 		return false;
 	}
-
-	cout << "msg length: " << strlen(msg) << endl;
 	return true;
 }
 
+//sends a stop signal (anything higher that ASCII 68) to the robot
 bool stop(Serial* SP, OVERLAPPED osReader)
 {
+	bool test = false;
+
 	if(SP->IsConnected()) {
-		char array[2] = {'s', '\0'};
-		if(SP->WriteData(array,strlen(array),osReader)>0)
-			return true;
+		char array[1] = {'s'};
+		if(SP->WriteData(array,strlen(array),osReader))
+			test = true;
 	}
-	return false;
+	return test;
+}
+
+bool getEnd(int& x_end, int& y_end)
+{
+	bool change = false;
+	int x, y;
+	fstream f;
+	f.open("end_location.txt", ios::in);
+
+	//Checks to see if file exists and can be read from
+	if(!f.is_open())
+		cout << "could not open file.\n";
+
+	//Pull the dimensions of the map from file
+	//file format is "y x"
+	f >> y >> x;
+
+	//check whether end point has been changed
+	if(x != x_end || y != y_end){
+		//do not send change for initial case
+		if(x_end != -1 && y_end != -1){
+			change = true;
+		}
+		x_end = x;
+		y_end = y;
+	}
+	f.close();
+
+	return change;
 }
 
 //send stop and exit
@@ -134,73 +159,75 @@ int main()
 	Serial* SP = new Serial("COM5");	//change as needed
 	int readResult = 0;
 	int x_start,  y_start, x_end, y_end, total_size, x_cur, y_cur;
-	string rfid;
+	string rfid = "";
 
 	map = getMap(total_size);
+	x_start = y_start = x_end = y_end = x_cur = y_cur = -1;
 
-	x_end = 4; y_end = 5;
-	x_start = y_start = 0;
-	x_cur = y_cur = -1;
+//	x_end = 4; y_end = 5;
+//	x_start = y_start = x_cur = y_cur = -1;
 
 	//perform handshake with the robot before trying to communicate
 	if(initComm(SP, osReader)){
 
-		while( x_cur != x_end || y_cur != y_end ){
-
+		while(  rfid.empty() || !check( x_end , y_end, map, rfid) || x_end == -1 ){
+			cout << "been here once" << endl;
 			//Check for and read RFID tags
-			if(SP->IsConnected()) {
-				if(fWaitingOnRead) {
-					char msg[dataLength] = "";
-					if(read(SP, osReader, msg, RFIDlength)) {
+			if(fWaitingOnRead) {
+				char msg[dataLength] = "";
+				if(read(SP, osReader, msg, RFIDlength)) {
 
-		//for debugging
-		std::cout << "read: " << msg << std::endl;
+	//for debugging
+	std::cout << "read: " << msg << std::endl;
 
-						rfid = msg;
-						if( path.empty() ){
-							if(getPosition( rfid, x_start, y_start, map)>=0) {
-								x_cur = x_start; y_cur = y_start;
-								path = pathFind(map, x_start, y_start, x_end, y_end, total_size);
-							}
-							else
-								 return abort(SP, osReader);
-						}
-						else if(!check(x_cur, y_cur, map, rfid)) {
-							cout << "unexpected position. Recalculating...." << endl;
-							if( getPosition( rfid, x_cur, y_cur, map) >=0 ) {
-								cout << "Current position: " << x_cur << " " << y_cur << endl;
-								path = pathFind(map, x_cur, y_cur, x_end, y_end, total_size);
-							}
-							else
-							    return abort(SP, osReader);
-						}
-						else {
-							//update path by removing most recent move
-							path = path.substr(1,path.length()-1);
-						}
+					rfid = msg;
+					//read from end file. If end point has changed, then update path
+					if(getEnd(x_end, y_end))
+						path = pathFind(map, x_cur, y_cur, x_end, y_end, total_size);
 
-						fWaitingOnRead = FALSE;
+					if( x_start== -1 && y_start == -1 ){
+						//read starting point and set initial path
+						if(getPosition( rfid, x_start, y_start, map)>=0) {
+							x_cur = x_start; y_cur = y_start;
+							path = pathFind(map, x_start, y_start, x_end, y_end, total_size);
+						}
+						else
+							 return abort(SP, osReader);
 					}
-					else
-						return abort(SP, osReader);
+					else if(!check(x_cur, y_cur, map, rfid)) {
+						//if unexpected RFID tag is read, then recalculate path
+						cout << "unexpected position. Recalculating...." << endl;
+
+						if( getPosition( rfid, x_cur, y_cur, map) >=0 ) {
+							path = pathFind(map, x_cur, y_cur, x_end, y_end, total_size);
+						}
+						else
+							return abort(SP, osReader);
+					}
+					else {
+						//update path by removing most recent move
+						path = path.substr(1,path.length()-1);
+					}
+
+					fWaitingOnRead = FALSE;
 				}
+				else
+					return abort(SP, osReader);
 			}
-			else
-			    return abort(SP, osReader);
 
 			//Send instructions as a single char to the robot
-			if(SP->IsConnected()) {
-				if(!fWaitingOnRead) {
+			if(!fWaitingOnRead) {
+				if( path[0] != NULL){
 					char array[2] = {path[0], '\0'};
 					if(SP->WriteData(array,strlen(array),osReader)) {
 						cout << "direction: " << array << endl;
-						move(x_cur, y_cur, path);
+						move(x_cur, y_cur, path, map);
 						fWaitingOnRead = TRUE;
 					}
 				}
+				else
+					stop( SP, osReader);
 			}
-			else
-			    return abort(SP, osReader);
 
 		}
 

@@ -31,7 +31,7 @@ public:
 	{
     	level = 0;
     	xPos = yPos = priority = -1;
-		rfid = "EMPTY";
+		rfid = "";
 		dir = -1;
 	}
 
@@ -42,7 +42,7 @@ public:
     	yPos = yp;
     	level = d;
     	priority = p;
-    	rfid = "EMPTY";
+    	rfid = "";
 		dir = pardir;
     }
 

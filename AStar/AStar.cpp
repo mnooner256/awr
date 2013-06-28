@@ -34,7 +34,7 @@ int getPosition(string rfid, int& x, int& y, Node* map)
     		x = i % n;
     		y = i / m;
 
-    		cout << "New current position: " << x << " " << y << endl;
+    		cout << "current position: " << x << " " << y << endl;
 
 			return i;
 	    }
@@ -50,18 +50,22 @@ string getRFID(int x, int y, Node* map)
 	return map[(y * n) + x].getRfid();
 }
 
-//Compares passed rfid value to current rfid value
-bool check(int x_cur, int y_cur, Node* map, string rfid)
+//Compares passed rfid value to rfid at x,y
+bool check(int x, int y, Node* map, string rfid)
 {
-	return (getRFID(x_cur, y_cur, map).compare(rfid.substr(2,rfid.length()-2))==0);
+	return (getRFID(x, y, map).compare(rfid.substr(2,rfid.length()-2))==0);
 }
 
 //Update the current x and y position with the next move along the path
-void move(int& x, int& y, string path)
+void move(int& x, int& y, string path, Node* map)
 {
 	//Pull off the next move from the string path and convert to int
-	x += dx[path[0] - '0'];
-	y += dy[path[0] - '0'];
+	int move = path[0] - '0';
+	//move in this direction until next node with RFID tag is encountered
+	do{
+		x += dx[move];
+		y += dy[move];
+	} while ( map[(y * n) + x].getRfid().compare("e") == 0 || map[(y * n) + x].getRfid().compare("w") == 0 );
 
 	cout << "New move: " << x << " " << y << endl;
 }
@@ -97,8 +101,7 @@ Node* getMap(int& t_s)
 		}
 	}
 
-	cout << "Map  compiled!" << endl;
-
+//	cout << "Map  compiled!" << endl;
 	f.close();
 
 	return hold_node;
@@ -218,11 +221,11 @@ string pathFind(Node* map, int& xStart, int& yStart, int& xFinish, int& yFinish,
             }
         }
 
-
 	  //garbage collection
 	  while(!node_options.empty()) {
 		  Node* temp = new Node(node_options.top());
 		  node_options.pop();
+
 		  delete temp;
 	  }
 		delete node; // garbage collection
