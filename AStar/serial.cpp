@@ -149,6 +149,9 @@ int Serial::ReadLine(char *buffer, unsigned int nbChar, OVERLAPPED osReader, int
 		}
 	}
 
+	memset (buf, NULL, strlen(buf));
+
+
     //If nothing has been read or an error was detected, return 0
 	return length;
 }
@@ -164,7 +167,7 @@ bool Serial::WriteData(char *buffer, unsigned int nbChar, OVERLAPPED osReader)
         return false;
     }
     else
-        return true;
+    	return true;
 }
 
 bool Serial::IsConnected()

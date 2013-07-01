@@ -82,7 +82,7 @@ bool RFIDcheck ( char* msg, int toRead )
 bool read(Serial* SP, OVERLAPPED osReader, char* msg, int toRead)
 {
 	SP->ReadLine(msg,dataLength, osReader, toRead);
-
+	cout << "readline: " << msg << endl;
 	if(msg[0] != 'R' && msg[1] != ':') {
 		char* begin = strchr(msg, 'R');
 		int j=0;
@@ -138,7 +138,6 @@ bool getEnd(int& x_end, int& y_end)
 		y_end = y;
 	}
 	f.close();
-
 	return change;
 }
 
@@ -156,10 +155,12 @@ int main()
 {
 	BOOL fWaitingOnRead = TRUE;
 	OVERLAPPED osReader = {0};
+	BOOL end_change;
 	Serial* SP = new Serial("COM5");	//change as needed
 	int readResult = 0;
 	int x_start,  y_start, x_end, y_end, total_size, x_cur, y_cur;
 	string rfid = "";
+	char msg[dataLength];
 
 	map = getMap(total_size);
 	x_start = y_start = x_end = y_end = x_cur = y_cur = -1;
@@ -171,10 +172,10 @@ int main()
 	if(initComm(SP, osReader)){
 
 		while(  rfid.empty() || !check( x_end , y_end, map, rfid) || x_end == -1 ){
-			cout << "been here once" << endl;
+			end_change = FALSE;
 			//Check for and read RFID tags
 			if(fWaitingOnRead) {
-				char msg[dataLength] = "";
+				memset(msg, '\0', strlen(msg));
 				if(read(SP, osReader, msg, RFIDlength)) {
 
 	//for debugging
@@ -182,9 +183,17 @@ int main()
 
 					rfid = msg;
 					//read from end file. If end point has changed, then update path
-					if(getEnd(x_end, y_end))
-						path = pathFind(map, x_cur, y_cur, x_end, y_end, total_size);
+					if(getEnd(x_end, y_end)){
+						//verify that end points are valid values with RFID tags
+						if (!getRFID(x_end, y_end, map).empty()){
+							path = pathFind(map, x_cur, y_cur, x_end, y_end, total_size);
+						}
+						else
+							cout << "invalid end point" << endl;
 
+						cout << "new end: " << x_end << " " << y_end << endl;
+						end_change = TRUE;
+					}
 					if( x_start== -1 && y_start == -1 ){
 						//read starting point and set initial path
 						if(getPosition( rfid, x_start, y_start, map)>=0) {
@@ -206,13 +215,15 @@ int main()
 					}
 					else {
 						//update path by removing most recent move
-						path = path.substr(1,path.length()-1);
+						if(end_change==FALSE){
+						  path = path.substr(1,path.length()-1);
+						}
 					}
 
 					fWaitingOnRead = FALSE;
 				}
 				else
-					return abort(SP, osReader);
+					cout << "read failed " << endl; //return abort(SP, osReader);
 			}
 
 			//Send instructions as a single char to the robot

@@ -13,20 +13,18 @@ int E2 = 5; //M2 Speed Control
 int M1 = 8; //M1 Direction Control
 int M2 = 7; //M2 Direction Control
 
-int leftspeed = 100;
-int rightspeed = 90;//138;
-
 void drive_motors(int cmd) {
   
+  //fail safe to stop
   if(abs(cmd)>4){
     stop();
   }
-    
   else if(cmd<0){
-    left (leftspeed,rightspeed, -cmd*925);
+    //negative direction indicates turning left
+    left (leftspeed,rightspeed, -cmd*915);
   }
   else {
-    right (leftspeed,rightspeed, cmd*990);
+    right (leftspeed,rightspeed, cmd*975);
   }
 }
 
@@ -46,21 +44,19 @@ void left (char a,char b, int time)
 {
    unsigned long initTime = millis();
    analogWrite (E1,a);
-   digitalWrite(M1,HIGH);
    analogWrite (E2,b);
-   digitalWrite(M2,LOW);
+   digitalWrite(M1,HIGH);
+   //delay while turning
    while(millis() <= initTime+time){ }
-   
    digitalWrite(M1,LOW);
 }
 void right (char a,char b, int time)
 {  
    unsigned long initTime = millis();
    analogWrite (E1,a);
-   digitalWrite(M1,LOW);
    analogWrite (E2,b);
    digitalWrite(M2,HIGH);
+   //delay while turning
    while(millis() <= initTime+time){ }
-   
    digitalWrite(M2,LOW);
 }
