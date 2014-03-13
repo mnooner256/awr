@@ -1,37 +1,25 @@
 /*
- A* Pathfinding Algorithm for REU
-
- Created by: Francisco Ruiz
+ * AStar.h
+ *
+ *  Created on: Jun 11, 2013
+ *      Author: fjr_1983
  */
 
-#ifndef ASTAR_H
-#define ASTAR_H
+#ifndef ASTAR_H_
+#define ASTAR_H_
 
-#include <fstream>
-#include "Node.h"
+extern int getPosition(string rfid, int& x, int& y, Node* map);
 
+extern bool check(int x_cur, int y_cur, Node* map, string rfid);
 
+extern void move(int& x, int& y, string path, Node* map);
 
-using namespace std;
+extern string getRFID(int x, int y, Node* map);
 
-class Path
-{
-private:
-	Node* path;
-	Node* curr;
-	int start_x, start_y, end_x, end_y;
-public:
-	//default constructor
-	Path(int size)
-	{
-		path = new int[size];
-		curr = path;
-		start_x = start_y = end_x = end_y = -1;
-	}
-	//actual pathfinding algorithm
-	int* aStar()
-	{
+extern Node* getMap(int& t_s);
 
-	}
-};
+extern string pathFind(Node*, int& xStart, int& yStart, int& xFinish, int& yFinish, int t_s);
+
+extern string generatePath( int*, int, int, int, int);
+
 #endif

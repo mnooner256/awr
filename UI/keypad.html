@@ -1,0 +1,56 @@
+<!DOCTYPE html> 
+
+<html>
+<head>
+
+<script src="keypad.js"></script>
+<script src="jquery.js"></script>
+
+
+	<title> Best Keypad Ever!!! </title>
+	<style type="text/css">
+	input {
+		width:75px;
+		height:75px;
+	}
+	</style>
+</head>
+
+<body>
+
+	<h1> Best Pad Ever!!! </h1>
+	
+	
+	<form>
+		Room Number >>> <input type="text" name="" maxlength="3" id="rooms">
+		<table border="6">
+			<tr>	
+				<td> <input type="button" value="7" onclick="showNumber(7)"></td>
+				<td> <input type="button" value="8" onclick="showNumber(8)"></td>
+				<td> <input type="button" value="9" onclick="showNumber(9)"></td>
+			</tr>
+
+			<tr>
+				<td> <input type="button" value="4" onclick="showNumber(4)"></td>
+				<td> <input type="button" value="5" onclick="showNumber(5)"></td>
+				<td> <input type="button" value="6" onclick="showNumber(6)"></td>
+			</tr>
+
+			<tr>
+				<td> <input type="button" value="1" onclick="showNumber(1)"></td>
+				<td> <input type="button" value="2" onclick="showNumber(2)"></td>
+				<td> <input type="button" value="3" onclick="showNumber(3)"></td>
+			</tr>
+
+			<tr>
+				<td> <input type="button" value="0" onclick="showNumber(0)"></td>
+				<td> <input type="button" value="Clr" onclick="clearBox()"></td>
+				<td> <input type="button" value="ACS"   onclick="showTotal()"></td>
+			</tr>
+		</table>
+	</form>
+
+
+
+</body>
+</html>	

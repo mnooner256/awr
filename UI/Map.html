@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+
+<html>
+	<head>
+<script src="jquery.js"></script>
+<script src="global.js"></script>
+<script src="jscr.js"></script>
+	</head>
+
+<body>
+
+
+<form>
+
+<style>
+div.floating-menu {position:fixed;background:#ffffff;z-index:1}
+div.floating-menu a, div.floating-menu h3 {display:block;margin:0 0.5em;}
+</style>
+<div class="floating-menu">
+<canvas id="toolBar" width="280" height="540"></canvas>
+
+</div>
+
+<style>
+div.page-Over {position:relative; right:-340px}
+</style>
+
+<div class="page-Over">
+Dimension (row x column): <input type="text" name="rows" id="rows" value="5"/> X <input type="text" name="colmun" id="column" value="5"/>
+</form>
+<input type="button" value="Genereate" onclick="generate()"/>
+<br>
+<canvas id="drawSpace" width="500" height="500" style="border:none;"></canvas>
+<br>
+<input type="button" value="Save Map" onclick="lock()"/>
+<input type="button" value="Load Map" onclick="load()"/>
+<input type="button" value="Clear" onclick="resetMap()" />
+</div>
+
+</body>
+</html>
